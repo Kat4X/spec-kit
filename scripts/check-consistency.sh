@@ -34,6 +34,7 @@ check_same() {
   fi
 }
 
+# Patterns are split by concatenation so the script doesn't match itself.
 legacy_scope_pattern='managed'"-"'files[.]md|MANAGED'"-"'FILES-TEMPLATE'
 ambiguous_parallel_pattern='\[P\]'
 duplicated_scope_heading='Scope / '"Scope"
@@ -76,6 +77,25 @@ if ! python3 -m json.tool skill-drafts/workflow-kit-tasks/template/TASKS-TEMPLAT
   echo 'FAIL: skill-drafts/workflow-kit-tasks/template/TASKS-TEMPLATE.json is not valid JSON'
   fail=1
 fi
+
+# Verify tasks.json templates have required top-level and per-task fields.
+required_top='"version"  "change"  "spec"  "plan"  "scope"  "verification"  "statusValues"  "tasks"  "execution"  "coverage"  "summary"'
+required_task='"id"  "title"  "details"  "status"  "priority"  "refs"  "dependsOn"  "parallel"  "confirmationRequired"  "files"  "checks"  "verification"'
+
+for tmpl in templates/change/tasks.json skill-drafts/workflow-kit-tasks/template/TASKS-TEMPLATE.json; do
+  for key in $required_top; do
+    if ! grep -q "$key" "$tmpl"; then
+      echo "FAIL: $tmpl missing top-level field $key"
+      fail=1
+    fi
+  done
+  for key in $required_task; do
+    if ! grep -q "$key" "$tmpl"; then
+      echo "FAIL: $tmpl missing task field $key"
+      fail=1
+    fi
+  done
+done
 
 if (( fail )); then
   exit 1
