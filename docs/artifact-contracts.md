@@ -18,7 +18,7 @@ ai/specs/YYYYMMDD_HHMM_change-name/
 spec.md
 plan.md
 scope.md
-tasks.md
+tasks.json
 verification.md
 ```
 
@@ -113,7 +113,7 @@ verification.md
 
 ## `scope.md`
 
-Назначение: managed files и границы редактирования. Обязателен до `tasks.md`/implementation; для маленьких локальных changes может быть коротким.
+Назначение: managed files и границы редактирования. Обязателен до `tasks.json`/implementation; для маленьких локальных changes может быть коротким.
 
 Обязательные секции:
 
@@ -134,24 +134,73 @@ verification.md
 - Если файл не указан нигде, агент должен считать его `requires confirmation`, если изменение не очевидно локальное.
 - Конфиги, миграции, public API и файлы данных по умолчанию требуют подтверждения.
 
-## `tasks.md`
+## `tasks.json`
 
-Назначение: исполняемый чеклист.
+Назначение: машинно-читаемая очередь задач для AI-исполнителя и будущей автоматизации. Это source of truth для выбора следующей задачи; человек не обязан читать файл целиком.
 
-Формат задачи:
+Формат: валидный JSON без comments и trailing commas.
 
-```markdown
-- [ ] [T001] [P0] [PAR?] [US-1?] Описание с явным путём к файлу
+Обязательные верхнеуровневые поля:
+
+- `version` — версия схемы, сейчас `1`.
+- `change` — название change.
+- `spec`, `plan`, `scope`, `verification` — ссылки на артефакты workspace.
+- `research`, `dataModel` — строка с путём или `null`.
+- `statusValues` — допустимые статусы.
+- `tasks` — массив задач.
+- `execution` — порядок, parallel groups и первая задача.
+- `coverage` — соответствие требований задачам и проверкам.
+- `summary` — агрегаты для быстрого чтения.
+
+Минимальная задача:
+
+```json
+{
+  "id": "T001",
+  "title": "Короткое описание",
+  "details": "Детали реализации для AI-исполнителя.",
+  "status": "pending",
+  "priority": "P0",
+  "refs": ["US-1"],
+  "dependsOn": [],
+  "parallel": false,
+  "confirmationRequired": false,
+  "confirmation": null,
+  "files": {
+    "read": [],
+    "edit": ["path/to/file"],
+    "create": [],
+    "delete": []
+  },
+  "checks": [
+    {
+      "type": "automated",
+      "command": "npm test",
+      "scenario": null,
+      "required": true,
+      "covers": ["US-1"]
+    }
+  ],
+  "verification": {
+    "result": "not_run",
+    "evidence": "",
+    "updatedAt": null
+  }
+}
 ```
 
 Правила:
 
 - ID уникальный и монотонный: `T001`, `T002`, ...
-- `[PAR]` означает возможность параллельного выполнения внутри фазы.
-- `[US-1]`, `[Case-1]`, `[R-001]` связывают задачу с требованием из spec.
+- Допустимые `status`: `pending`, `in_progress`, `done`, `blocked`, `skipped`.
+- `done` ставится только после успешной обязательной проверки или явно записанного объяснения, почему проверка невозможна.
+- `parallel: true` означает возможность параллельного выполнения после выполнения `dependsOn`.
+- `confirmationRequired: true` означает, что implement должен остановиться до подтверждения пользователя.
+- `refs` связывает задачу с требованиями из spec: `US-1`, `Case-1`, `R-001`, `NFR-001`.
 - Задача ≤ 1 часа работы или должна быть разбита.
-- Задача содержит путь к файлу, команду проверки или проверяемый результат.
+- Задача содержит явные `files` и `checks` или проверяемый manual scenario.
 - Проверки ставятся рядом с кодом, который они проверяют.
+- Финальная задача должна запускать проверки, обновлять `verification.md` и проверять `scope.md`.
 
 ## `implementation-fix.md`
 
@@ -167,7 +216,7 @@ verification.md
 
 - Содержит описание расхождения: expected vs actual.
 - Ссылается на requirement/user story.
-- После фикса может быть превращён в задачи в `tasks.md`.
+- После фикса может быть превращён в задачи в `tasks.json`.
 
 ## `verification.md`
 

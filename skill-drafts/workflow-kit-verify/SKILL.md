@@ -1,6 +1,6 @@
 ---
 name: workflow-kit-verify
-description: Финальная проверка изменения по spec.md, plan.md, scope.md, tasks.md и verification.md. Используй после workflow-kit-implement или перед завершением change.
+description: Финальная проверка изменения по spec.md, plan.md, scope.md, tasks.json и verification.md. Используй после workflow-kit-implement или перед завершением change.
 metadata:
   title: "Верификация изменения"
 ---
@@ -29,7 +29,7 @@ metadata:
 - `spec.md`;
 - `plan.md`;
 - `scope.md`;
-- `tasks.md`;
+- `tasks.json`;
 - `verification.md`.
 
 Если любого из обязательных файлов нет — остановись и скажи, какой этап нужно выполнить перед verify.
@@ -40,7 +40,7 @@ metadata:
 
 - `spec.md`;
 - `plan.md`;
-- `tasks.md`;
+- `tasks.json`;
 - `verification.md`;
 - `scope.md`;
 - `research.md`, если есть;
@@ -50,14 +50,15 @@ metadata:
 - релевантный код и тесты;
 - результаты команд, если они уже есть в чате, логах или `verification.md`.
 
-Не используй старые `ai/specs/*`, `plan.md` или `tasks.md` из других workspaces как источник требований для этого change, если пользователь явно не указал связанный workspace.
+Не используй старые `ai/specs/*`, `plan.md` или `tasks.json` из других workspaces как источник требований для этого change, если пользователь явно не указал связанный workspace.
 
 ### 3. Проверь completeness
 
 Проверь:
 
 - все P0/обязательные acceptance criteria из `spec.md` покрыты реализацией или явно помечены как not done;
-- все обязательные задачи в `tasks.md` выполнены или имеют объяснение;
+- `tasks.json` валиден как JSON;
+- все обязательные задачи в `tasks.json` имеют `status: "done"` или обоснованный `status: "skipped"`; задачи со `status: "blocked"`, `"pending"` или `"in_progress"` не считаются выполненными;
 - optional/P1/P2 не выданы за завершённые P0;
 - `implementation-fix.md`, если есть, закрыт или его риски перенесены в `verification.md`;
 - открытые вопросы не замазаны как выполненная работа.
@@ -74,7 +75,7 @@ metadata:
 - нет поведения, противоречащего `## Вне скоупа`;
 - нет незапланированного scope creep.
 
-Если spec/plan/tasks устарели относительно реализации — не переписывай их молча. Зафиксируй gap и предложи вернуться к нужному этапу.
+Если spec/plan/tasks устарели относительно реализации — не переписывай их молча. Зафиксируй gap и предложи вернуться к нужному этапу. `tasks.json` можно обновлять только для фактических статусов/verification результатов, а не для переписывания задним числом.
 
 ### 5. Проверь границы `scope.md`
 
@@ -85,18 +86,18 @@ metadata:
 - `Forbidden` files не изменялись;
 - shared/public surfaces отмечены и проверены;
 - generated/external files не редактировались руками без команды регенерации;
-- нет очевидного scope creep за пределы `plan.md` и `tasks.md`.
+- нет очевидного scope creep за пределы `plan.md` и `tasks.json`.
 
 Если границы нарушены — статус не `Ready`; используй `Blocked` или `Needs user decision`.
 
 ### 6. Запусти проверки
 
-Запусти минимально достаточные команды из `verification.md`, `tasks.md` и `plan.md`, если окружение позволяет.
+Запусти минимально достаточные команды из `verification.md`, `tasks.json` и `plan.md`, если окружение позволяет.
 
 Приоритет:
 
 1. проверки, явно указанные в `verification.md`;
-2. финальные проверки из `tasks.md`;
+2. обязательные `checks` из `tasks.json`, особенно финальные;
 3. тестовая стратегия из `plan.md`;
 4. минимальные релевантные проверки проекта.
 
@@ -129,12 +130,12 @@ metadata:
 
 Используй один итоговый статус:
 
-- `Ready` — P0/обязательное выполнено, проверки прошли, границы `scope.md` чистые, блокеров нет.
+- `Ready` — P0/обязательное выполнено, обязательные задачи в `tasks.json` имеют `done`/обоснованный `skipped`, проверки прошли, границы `scope.md` чистые, блокеров нет.
 - `Ready with warnings` — P0/обязательное выполнено, есть некритичные gaps/risks или часть проверок не запускалась с понятным риском.
 - `Blocked` — нельзя завершить без исправления реализации, тестов или задач.
 - `Needs user decision` — нужно решение человека: scope, продуктовый вопрос, confirmation, риск или спорное отклонение от spec/plan.
 
-Не используй `Ready`, если есть незакрытый P0, forbidden change, падающая обязательная проверка или несанкционированный public/shared change.
+Не используй `Ready`, если есть незакрытый P0, задача со статусом `pending`/`in_progress`/`blocked`, forbidden change, падающая обязательная проверка или несанкционированный public/shared change.
 
 ### 9. Git и `.gitignore`
 

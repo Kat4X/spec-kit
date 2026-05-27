@@ -8,7 +8,7 @@ Tasks создаёт заготовку; implement/verify записывают �
 
 Spec: [spec.md](spec.md)
 Plan: [plan.md](plan.md)
-Tasks: [tasks.md](tasks.md)
+Tasks: [tasks.json](tasks.json)
 Scope: [scope.md](scope.md)
 
 ## План проверок

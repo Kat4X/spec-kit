@@ -35,19 +35,20 @@ check_same() {
 }
 
 legacy_scope_pattern='managed'"-"'files[.]md|MANAGED'"-"'FILES-TEMPLATE'
-ambiguous_parallel_pattern='\\['"P"'\\]'
+ambiguous_parallel_pattern='\[P\]'
 duplicated_scope_heading='Scope / '"Scope"
 
 check_absent "$legacy_scope_pattern" 'stale legacy scope filename found; use scope.md'
+check_absent 'tasks[.]md|TASKS-TEMPLATE[.]md' 'stale Markdown tasks artifact found; use tasks.json'
 check_absent "$duplicated_scope_heading" 'duplicated Scope heading found'
-check_absent "$ambiguous_parallel_pattern" 'ambiguous short parallel marker found; use [PAR]'
+check_absent "$ambiguous_parallel_pattern" 'ambiguous short parallel marker found; use parallel: true in tasks.json'
 
 check_exists 'templates/change/spec.md'
 check_exists 'templates/change/research.md'
 check_exists 'templates/change/plan.md'
 check_exists 'templates/change/data-model.md'
 check_exists 'templates/change/scope.md'
-check_exists 'templates/change/tasks.md'
+check_exists 'templates/change/tasks.json'
 check_exists 'templates/change/verification.md'
 check_exists 'templates/change/implementation-fix.md'
 check_exists 'skill-drafts/workflow-kit-plan/template/SCOPE-TEMPLATE.md'
@@ -63,8 +64,18 @@ check_same 'templates/change/plan.md' 'skill-drafts/workflow-kit-plan/template/P
 check_same 'templates/change/data-model.md' 'skill-drafts/workflow-kit-plan/template/DATA-MODEL-TEMPLATE.md'
 check_same 'templates/change/scope.md' 'skill-drafts/workflow-kit-plan/template/SCOPE-TEMPLATE.md'
 check_same 'templates/change/scope.md' 'skill-drafts/workflow-kit-specify/template/SCOPE-TEMPLATE.md'
-check_same 'templates/change/tasks.md' 'skill-drafts/workflow-kit-tasks/template/TASKS-TEMPLATE.md'
+check_same 'templates/change/tasks.json' 'skill-drafts/workflow-kit-tasks/template/TASKS-TEMPLATE.json'
 check_same 'templates/change/verification.md' 'skill-drafts/workflow-kit-tasks/template/VERIFICATION-TEMPLATE.md'
+
+if ! python3 -m json.tool templates/change/tasks.json >/dev/null; then
+  echo 'FAIL: templates/change/tasks.json is not valid JSON'
+  fail=1
+fi
+
+if ! python3 -m json.tool skill-drafts/workflow-kit-tasks/template/TASKS-TEMPLATE.json >/dev/null; then
+  echo 'FAIL: skill-drafts/workflow-kit-tasks/template/TASKS-TEMPLATE.json is not valid JSON'
+  fail=1
+fi
 
 if (( fail )); then
   exit 1

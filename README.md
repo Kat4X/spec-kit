@@ -1,6 +1,6 @@
 # Workflow Kit
 
-> Skills-first workflow для AI-агентов: фиксируем намерение, план, границы редактирования, задачи и проверку в Markdown-файлах, без тяжёлого CLI на старте.
+> Skills-first workflow для AI-агентов: фиксируем намерение, план, границы редактирования, машинно-читаемые задачи и проверку в файлах, без тяжёлого CLI на старте.
 
 ## Статус
 
@@ -13,7 +13,7 @@
 Workflow Kit переносит состояние работы в файлы:
 
 ```text
-idea → spec.md → research.md → plan.md → scope.md → tasks.md → code → verification.md
+idea → spec.md → research.md → plan.md → scope.md → tasks.json → code → verification.md
                          └→ data-model.md (optional)
 ```
 
@@ -37,7 +37,7 @@ ai/specs/YYYYMMDD_HHMM_change-name/
 ├── plan.md             # как делаем
 ├── data-model.md       # опционально: данные/схемы/форматы
 ├── scope.md            # managed files / границы редактирования
-├── tasks.md            # маленький исполняемый чеклист
+├── tasks.json          # машинно-читаемая очередь задач
 ├── implementation-fix.md # опционально: баг реализации при корректной spec
 └── verification.md     # чем доказали, что работает
 ```
@@ -48,10 +48,10 @@ ai/specs/YYYYMMDD_HHMM_change-name/
 specify → plan → tasks → implement → verify
    │        │       │          │         │
    ▼        ▼       ▼          ▼         ▼
-spec.md  plan.md  tasks.md  code      verification.md
+spec.md  plan.md  tasks.json  code      verification.md
             │        │          │
             ▼        ▼          ▼
-        scope.md  file paths  task checkboxes
+        scope.md  file paths  task statuses
 ```
 
 ## Что взято из исследованных подходов
@@ -66,7 +66,7 @@ spec.md  plan.md  tasks.md  code      verification.md
 
 1. Остаётся ли обязательный минимальный `scope.md` достаточно лёгким для маленьких задач?
 2. Не слишком ли тяжёлый `spec.md` для маленьких задач?
-3. Нужен ли отдельный `implementation-fix.md` или хватит задач в `tasks.md`?
+3. Достаточна ли JSON-схема `tasks.json` для автоматизации без CLI?
 4. Работают ли skill-drafts без CLI и без установки?
 5. Какие поля надо сделать обязательными для всех проектов, а какие оставить project rules?
 
@@ -84,7 +84,7 @@ templates/change/
   plan.md
   data-model.md
   scope.md
-  tasks.md
+  tasks.json
   implementation-fix.md
   verification.md
 

@@ -1,6 +1,6 @@
 ---
 name: workflow-kit
-description: Лёгкий skills-first workflow для AI-разработки через Markdown-артефакты. Используй когда нужно провести изменение от идеи до проверенной реализации.
+description: Лёгкий skills-first workflow для AI-разработки через Markdown-артефакты и машинно-читаемый tasks.json. Используй когда нужно провести изменение от идеи до проверенной реализации.
 ---
 
 # Workflow Kit
@@ -29,7 +29,7 @@ research.md           # optional
 plan.md
 data-model.md         # optional
 scope.md
-tasks.md
+tasks.json
 implementation-fix.md # optional
 verification.md
 ```
@@ -41,7 +41,7 @@ verification.md
 - `scope.md` обязателен до tasks/implement; для маленьких atomic changes он может быть коротким, но границы редактирования должны быть явными.
 - Неясности помечай `ТРЕБУЕТ УТОЧНЕНИЯ`.
 - Не меняй файлы вне `scope.md` без подтверждения.
-- Не отмечай задачу `[x]`, если проверка не прошла или не объяснено, почему её нельзя запустить.
+- Не ставь задаче `status: "done"` в `tasks.json`, если проверка не прошла или не объяснено, почему её нельзя запустить.
 - Если spec неверна — меняй `spec.md`.
 - Если spec верна, но код ошибся — создай implementation fix task/note.
 
