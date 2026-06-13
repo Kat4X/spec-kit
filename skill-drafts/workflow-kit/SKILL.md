@@ -34,6 +34,12 @@ implementation-fix.md # optional
 verification.md
 ```
 
+## Execution modes
+
+- **Normal mode**: implement выполняет одну следующую задачу и сразу фиксирует её проверки.
+- **Batch / YOLO mode**: только по явному запросу пользователя implement может выполнять серию dependency-ready задач до первого блокера, батчить обновление `tasks.json`/`verification.md` и использовать consolidated checks вместо дублирующих проверок.
+- В любом режиме Forbidden/Requires confirmation, failing required checks, schema/config/shared-surface risk и продуктовые вопросы остаются stop conditions.
+
 ## Правила
 
 - Сначала понять WHAT/WHY, потом HOW, потом code.
@@ -47,6 +53,7 @@ verification.md
 
 ## Связанные draft skills
 
+- `workflow-kit-list`
 - `workflow-kit-specify`
 - `workflow-kit-plan`
 - `workflow-kit-tasks`

@@ -59,19 +59,33 @@
 ## 6. Проверка implementation behavior
 
 - [ ] Агент прочитал `spec.md`, `plan.md`, `scope.md`, `tasks.json` перед правками.
-- [ ] Агент выбрал первую задачу со `status: "pending"` без незакрытых зависимостей или указанную задачу.
+- [ ] В normal mode агент выбрал первую задачу со `status: "pending"` без незакрытых зависимостей или указанную задачу.
+- [ ] В normal mode агент не выполнил несколько независимых задач без явного batch/YOLO-запроса.
+- [ ] В batch/YOLO mode агент построил очередь только из dependency-ready задач без `confirmationRequired`.
+- [ ] В batch/YOLO mode агент остановился на первом существенном blocker и не перепрыгнул через риск.
 - [ ] Агент не менял files outside scope без подтверждения.
-- [ ] Агент поставил `status: "done"` только после проверки или явного объяснения.
+- [ ] Агент поставил `status: "done"` только после проверки, broader covering-check или явного объяснения.
 - [ ] При blocker агент остановился, а не додумал рискованное решение.
 
-## 7. Проверка `verification.md`
+## 7. Проверка `workflow-kit-list`
+
+- [ ] Scanner запускается без зависимостей кроме Python 3.
+- [ ] `READY` workspaces показывают progress, runnable tasks и команду запуска.
+- [ ] `BLOCKED` workspaces показывают причину блокера.
+- [ ] `DONE` скрыты по умолчанию и видны через `--all`.
+- [ ] `--json` возвращает машинно-читаемый вывод.
+- [ ] Scanner не меняет файлы.
+
+## 8. Проверка `verification.md`
 
 - [ ] Зафиксированы команды и результаты.
+- [ ] Broader checks записаны как `covered`, если они заменили task-level checks.
 - [ ] Зафиксированы ручные проверки или причина их отсутствия.
 - [ ] Зафиксированы gaps/risks.
+- [ ] `Ready` не используется при `pending`/`in_progress`/`blocked` обязательных задачах.
 - [ ] Есть итоговое решение: Ready / Ready with warnings / Blocked / Needs user decision.
 
-## 8. Красные флаги
+## 9. Красные флаги
 
 Если видишь это — workflow надо править:
 

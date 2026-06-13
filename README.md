@@ -24,9 +24,11 @@ Skill объясняет процесс, файлы хранят состоян�
 - **Skills-first, CLI-later** — сначала проверяем процесс как инструкции и Markdown-артефакты.
 - **Scope-first** — явный текущий scope, P0/P1/P2 где это полезно, жёсткий out-of-scope, никаких «заодно перепишем половину проекта».
 - **Small verified steps** — задачи маленькие, проверяемые, с явными файлами.
+- **Machine-readable task queue** — `tasks.json` хранит статусы, зависимости, checks, scope files и verification evidence без парсинга Markdown-чекбоксов.
 - **Managed edit scope** — агент заранее знает, что можно менять свободно, что требует подтверждения, а что запрещено.
 - **Spec bug ≠ implementation bug** — если намерение неверное, меняем spec; если spec верна, чиним реализацию отдельной задачей/заметкой.
 - **Tests as feedback loop** — завершение доказывается проверками, а не фразой «готово».
+- **Batch only by consent** — по умолчанию агент делает одну задачу; batch/YOLO разрешён только явным запросом и останавливается на блокерах.
 
 ## Структура change workspace
 
@@ -53,6 +55,18 @@ spec.md  plan.md  tasks.json  code      verification.md
             ▼        ▼          ▼
         scope.md  file paths  task statuses
 ```
+
+## Что улучшено после первой проверки в Yutori
+
+Изначальный черновик использовал `tasks.md` как Markdown-чеклист. После реального прогона workflow усилен так:
+
+- `tasks.md` заменён на валидный `tasks.json` с явными `status`, `dependsOn`, `parallel`, `confirmationRequired`, `files`, `checks` и task-level `verification`.
+- Добавлены режимы исполнения: normal mode выполняет одну следующую задачу, batch/YOLO mode выполняет dependency-ready очередь только по явному запросу пользователя.
+- Добавлена batch artifact policy: обновлять `tasks.json`/`verification.md` на checkpoint-ах, не дублировать проверки и не ставить `done` без required checks или честного объяснения.
+- Добавлена consolidated check policy: широкая финальная команда может покрывать несколько task-level checks и фиксируется как `covered`, а не как пачка повторных запусков.
+- Добавлен `workflow-kit-list` — read-only scanner workspaces по `ai/specs/*`, который показывает `READY`, `BLOCKED`, `DONE`, `NEEDS_PLAN`, `NEEDS_TASKS`, `LEGACY`, `BROKEN` и первую runnable task.
+- Уточнены stop conditions: Forbidden/Requires confirmation, schema/config/shared-surface risk, failing required checks и продуктовые вопросы всегда останавливают implementation.
+- Усилен verify: `Ready` запрещён при `pending`/`in_progress`/`blocked` задачах, нарушении scope или непроверенном P0.
 
 ## Что взято из исследованных подходов
 
@@ -93,6 +107,7 @@ scripts/
 
 skill-drafts/
   workflow-kit/
+  workflow-kit-list/       # read-only scanner workspaces и runnable tasks
   workflow-kit-specify/
   workflow-kit-plan/
   workflow-kit-tasks/
@@ -100,6 +115,20 @@ skill-drafts/
   workflow-kit-verify/
 ```
 
+## Быстрый список workspaces
+
+Из проекта, где лежат `ai/specs/*`, можно запустить:
+
+```bash
+python3 skill-drafts/workflow-kit-list/workflow_list_specs.py --root .
+```
+
+Для машинного вывода:
+
+```bash
+python3 skill-drafts/workflow-kit-list/workflow_list_specs.py --root . --json
+```
+
 ## Следующий шаг
 
-Прогнать Workflow Kit на одном небольшом реальном изменении и проверить: агенту хватает инструкций без ручного объяснения процесса или нет.
+Проверить обновлённый workflow на нескольких изменениях разного размера: маленький локальный fix, feature с несколькими задачами и batch/YOLO-прогон до первого блокера.

@@ -140,6 +140,13 @@ verification.md
 
 Формат: валидный JSON без comments и trailing commas.
 
+Режимы исполнения:
+
+- **Normal mode** — режим по умолчанию: implement выбирает одну следующую `pending` задачу, у которой закрыты `dependsOn` и нет `confirmationRequired`.
+- **Batch / YOLO mode** — только по явному запросу пользователя: implement строит очередь dependency-ready задач и выполняет её до первого blocker.
+
+Batch/YOLO не отменяет stop conditions: `Forbidden`, `Requires confirmation`, failing required checks, schema/config/shared-surface risk и продуктовые вопросы останавливают выполнение.
+
 Обязательные верхнеуровневые поля:
 
 - `version` — версия схемы, сейчас `1`.
@@ -205,6 +212,7 @@ verification.md
 - Задача содержит явные `files` и `checks` или проверяемый manual scenario.
 - Проверки ставятся рядом с кодом, который они проверяют.
 - Финальная задача должна запускать проверки, обновлять `verification.md` и проверять `scope.md`.
+- В batch/YOLO режиме статусы и verification evidence можно обновлять на checkpoint-ах, но `done` разрешён только для задач, чьи required checks прошли или покрыты broader check с явным evidence.
 
 ## `implementation-fix.md`
 
@@ -221,6 +229,26 @@ verification.md
 - Содержит описание расхождения: expected vs actual.
 - Ссылается на requirement/user story.
 - После фикса может быть превращён в задачи в `tasks.json`.
+
+## `workflow-kit-list` scanner
+
+Назначение: read-only список workspaces и runnable tasks по файлам `ai/specs/*`.
+
+Статусы workspace:
+
+- `READY` — есть хотя бы одна `pending` task, у которой все `dependsOn` имеют статус `done`/`skipped`, и `confirmationRequired: false`.
+- `BLOCKED` — незавершённые задачи есть, но runnable pending tasks нет.
+- `DONE` — все задачи имеют статус `done` или `skipped`.
+- `NEEDS_PLAN` — есть `spec.md`, но не хватает `plan.md` и/или `scope.md`.
+- `NEEDS_TASKS` — есть `spec.md`, `plan.md`, `scope.md`, но нет `tasks.json`.
+- `LEGACY` — найден старый `tasks.md`, но нет `tasks.json`.
+- `BROKEN` — битый `tasks.json`, отсутствуют обязательные файлы при наличии `tasks.json`, нет `spec.md`, или структура задач невалидна.
+
+Правила:
+
+- Scanner не меняет workflow artifacts.
+- Источник истины — только файлы workspace, не ручной реестр.
+- `READY` определяется по `tasks.json`, `dependsOn`, `status` и `confirmationRequired`.
 
 ## `verification.md`
 
@@ -246,5 +274,7 @@ verification.md
 Правила:
 
 - Каждая команда фиксируется с результатом.
+- Если более широкая команда покрывает несколько task-level checks, это фиксируется как `covered` с перечислением покрытых задач/checks.
 - Если проверка невозможна, фиксируется причина и риск.
 - Нельзя скрывать failing tests, даже если они pre-existing.
+- `Ready` нельзя использовать, если есть незакрытый P0, `pending`/`in_progress`/`blocked` обязательная задача, forbidden change, падающая обязательная проверка или несанкционированное изменение shared/public surface.

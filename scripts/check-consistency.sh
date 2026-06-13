@@ -40,7 +40,8 @@ ambiguous_parallel_pattern='\[P\]'
 duplicated_scope_heading='Scope / '"Scope"
 
 check_absent "$legacy_scope_pattern" 'stale legacy scope filename found; use scope.md'
-check_absent 'tasks[.]md|TASKS-TEMPLATE[.]md' 'stale Markdown tasks artifact found; use tasks.json'
+check_absent 'TASKS-TEMPLATE[.]md' 'stale Markdown tasks template found; use tasks.json'
+check_absent 'tasks[.]md[[:space:]]+#' 'stale Markdown tasks artifact in workspace tree found; use tasks.json'
 check_absent "$duplicated_scope_heading" 'duplicated Scope heading found'
 check_absent "$ambiguous_parallel_pattern" 'ambiguous short parallel marker found; use parallel: true in tasks.json'
 
@@ -53,6 +54,8 @@ check_exists 'templates/change/tasks.json'
 check_exists 'templates/change/verification.md'
 check_exists 'templates/change/implementation-fix.md'
 check_exists 'skill-drafts/workflow-kit-plan/template/SCOPE-TEMPLATE.md'
+check_exists 'skill-drafts/workflow-kit-list/SKILL.md'
+check_exists 'skill-drafts/workflow-kit-list/workflow_list_specs.py'
 
 if [[ -f 'skill-drafts/workflow-kit-specify/specify-skill.md' ]]; then
   echo 'FAIL: stale duplicate skill file exists: skill-drafts/workflow-kit-specify/specify-skill.md'
