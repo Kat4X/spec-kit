@@ -22,7 +22,7 @@ tasks.json
 verification.md
 ```
 
-`research.md`, `data-model.md` и `implementation-fix.md` создаются по необходимости.
+`research.md` и `data-model.md` создаются по необходимости. Implementation fix фиксируется как задача/verification evidence, а не отдельный обязательный артефакт MVP.
 
 ## `spec.md`
 
@@ -213,22 +213,6 @@ Batch/YOLO не отменяет stop conditions: `Forbidden`, `Requires confirm
 - Проверки ставятся рядом с кодом, который они проверяют.
 - Финальная задача должна запускать проверки, обновлять `verification.md` и проверять `scope.md`.
 - В batch/YOLO режиме статусы и verification evidence можно обновлять на checkpoint-ах, но `done` разрешён только для задач, чьи required checks прошли или покрыты broader check с явным evidence.
-
-## `implementation-fix.md`
-
-Назначение: исправить реализацию без изменения spec, когда spec верна.
-
-Создаётся, если:
-
-- тесты/ручная проверка показывают баг;
-- desired behavior в `spec.md` корректен;
-- менять spec было бы самообманом.
-
-Правила:
-
-- Содержит описание расхождения: expected vs actual.
-- Ссылается на requirement/user story.
-- После фикса может быть превращён в задачи в `tasks.json`.
 
 ## `workflow-kit-list` scanner
 

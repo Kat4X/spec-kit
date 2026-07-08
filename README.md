@@ -40,7 +40,6 @@ ai/specs/YYYYMMDD_HHMM_change-name/
 ├── data-model.md       # опционально: данные/схемы/форматы
 ├── scope.md            # managed files / границы редактирования
 ├── tasks.json          # машинно-читаемая очередь задач
-├── implementation-fix.md # опционально: баг реализации при корректной spec
 └── verification.md     # чем доказали, что работает
 ```
 
@@ -81,36 +80,26 @@ spec.md  plan.md  tasks.json  code      verification.md
 1. Остаётся ли обязательный минимальный `scope.md` достаточно лёгким для маленьких задач?
 2. Не слишком ли тяжёлый `spec.md` для маленьких задач?
 3. Достаточна ли JSON-схема `tasks.json` для автоматизации без CLI?
-4. Работают ли skill-drafts без CLI и без установки?
+4. Работают ли skills без CLI и без установки?
 5. Какие поля надо сделать обязательными для всех проектов, а какие оставить project rules?
 
 ## Содержимое
 
 ```text
 docs/
-  workflow-spec.md          # спецификация самого Workflow Kit
-  artifact-contracts.md     # контракт файлов
-  validation-checklist.md   # как проверять черновик
-
-templates/change/
-  spec.md
-  research.md
-  plan.md
-  data-model.md
-  scope.md
-  tasks.json
-  implementation-fix.md
-  verification.md
+  workflow.md              # спецификация самого Workflow Kit
+  artifact-contracts.md    # контракт файлов
+  validation-checklist.md  # как проверять черновик
 
 scripts/
-  check-consistency.sh     # sanity-check терминологии и синхронизации шаблонов
+  check-consistency.sh     # sanity-check структуры, терминологии и шаблонов
 
-skill-drafts/
-  workflow-kit/
+skills/
+  workflow-kit/            # overview/router
   workflow-kit-list/       # read-only scanner workspaces и runnable tasks
-  workflow-kit-specify/
-  workflow-kit-plan/
-  workflow-kit-tasks/
+  workflow-kit-specify/    # владеет template/SPEC-TEMPLATE.md
+  workflow-kit-plan/       # владеет plan/research/data-model/scope templates
+  workflow-kit-tasks/      # владеет tasks/verification templates
   workflow-kit-implement/
   workflow-kit-verify/
 ```
@@ -120,13 +109,13 @@ skill-drafts/
 Из проекта, где лежат `ai/specs/*`, можно запустить:
 
 ```bash
-python3 skill-drafts/workflow-kit-list/workflow_list_specs.py --root .
+python3 skills/workflow-kit-list/workflow_list_specs.py --root .
 ```
 
 Для машинного вывода:
 
 ```bash
-python3 skill-drafts/workflow-kit-list/workflow_list_specs.py --root . --json
+python3 skills/workflow-kit-list/workflow_list_specs.py --root . --json
 ```
 
 ## Следующий шаг

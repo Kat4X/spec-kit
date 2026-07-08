@@ -122,7 +122,7 @@ Workflow Kit нужен как лёгкая альтернатива тяжёл�
 
 - FR-001: Workflow Kit SHALL хранить артефакты изменения в `ai/specs/YYYYMMDD_HHMM_change-name/` по умолчанию.
 - FR-002: Workflow Kit SHALL поддерживать этапы `specify`, `plan`, `tasks`, `implement`, `verify`.
-- FR-003: Workflow Kit SHALL иметь шаблоны для `spec.md`, `research.md`, `plan.md`, `data-model.md`, `scope.md`, `tasks.json`, `implementation-fix.md`, `verification.md`.
+- FR-003: Workflow Kit SHALL иметь skill-owned шаблоны для `spec.md`, `research.md`, `plan.md`, `data-model.md`, `scope.md`, `tasks.json`, `verification.md`.
 - FR-004: `spec.md` SHALL быть чистым Markdown без JSON/XML/YAML-обёртки всего документа.
 - FR-005: Workflow Kit SHALL требовать явные границы редактирования в `scope.md` до implementation.
 - FR-006: Workflow Kit SHALL запрещать ставить задаче `status: "done"` без проверки или объяснения, почему проверка невозможна.

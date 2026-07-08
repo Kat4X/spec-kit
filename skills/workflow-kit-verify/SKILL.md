@@ -45,7 +45,6 @@ metadata:
 - `scope.md`;
 - `research.md`, если есть;
 - `data-model.md`, если есть;
-- `implementation-fix.md`, если есть;
 - project instructions, если они не были в контексте и влияют на проверку;
 - релевантный код и тесты;
 - результаты команд, если они уже есть в чате, логах или `verification.md`.
@@ -60,7 +59,7 @@ metadata:
 - `tasks.json` валиден как JSON;
 - все обязательные задачи в `tasks.json` имеют `status: "done"` или обоснованный `status: "skipped"`; задачи со `status: "blocked"`, `"pending"` или `"in_progress"` не считаются выполненными;
 - optional/P1/P2 не выданы за завершённые P0;
-- `implementation-fix.md`, если есть, закрыт или его риски перенесены в `verification.md`;
+- implementation fixes, если были, отражены как задачи/evidence и закрыты или перенесены в риски `verification.md`;
 - открытые вопросы не замазаны как выполненная работа.
 
 Если P0/обязательный пункт не выполнен — финальный статус не может быть `Ready`.

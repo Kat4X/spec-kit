@@ -7,7 +7,7 @@ check_absent() {
   local pattern="$1"
   local description="$2"
 
-  if rg -n "$pattern" README.md docs skill-drafts templates >/tmp/workflow-kit-check.$$; then
+  if rg -n "$pattern" README.md docs skills scripts >/tmp/workflow-kit-check.$$; then
     echo "FAIL: $description"
     cat /tmp/workflow-kit-check.$$
     fail=1
@@ -24,12 +24,11 @@ check_exists() {
   fi
 }
 
-check_same() {
-  local left="$1"
-  local right="$2"
+check_not_exists() {
+  local path="$1"
 
-  if ! cmp -s "$left" "$right"; then
-    echo "FAIL: template drift: $left differs from $right"
+  if [[ -e "$path" ]]; then
+    echo "FAIL: stale path exists: $path"
     fail=1
   fi
 }
@@ -39,65 +38,68 @@ legacy_scope_pattern='managed'"-"'files[.]md|MANAGED'"-"'FILES-TEMPLATE'
 ambiguous_parallel_pattern='\[P\]'
 duplicated_scope_heading='Scope / '"Scope"
 
+action_paths_pattern='templates/change|skill-drafts|workflow-spec[.]md|implementation-fix[.]md'
+
 check_absent "$legacy_scope_pattern" 'stale legacy scope filename found; use scope.md'
 check_absent 'TASKS-TEMPLATE[.]md' 'stale Markdown tasks template found; use tasks.json'
 check_absent 'tasks[.]md[[:space:]]+#' 'stale Markdown tasks artifact in workspace tree found; use tasks.json'
 check_absent "$duplicated_scope_heading" 'duplicated Scope heading found'
 check_absent "$ambiguous_parallel_pattern" 'ambiguous short parallel marker found; use parallel: true in tasks.json'
+if rg -n "$action_paths_pattern" README.md docs skills >/tmp/workflow-kit-check.$$; then
+  echo 'FAIL: stale structure/reference found after skill-owned templates migration'
+  cat /tmp/workflow-kit-check.$$
+  fail=1
+fi
+rm -f /tmp/workflow-kit-check.$$
 
-check_exists 'templates/change/spec.md'
-check_exists 'templates/change/research.md'
-check_exists 'templates/change/plan.md'
-check_exists 'templates/change/data-model.md'
-check_exists 'templates/change/scope.md'
-check_exists 'templates/change/tasks.json'
-check_exists 'templates/change/verification.md'
-check_exists 'templates/change/implementation-fix.md'
-check_exists 'skill-drafts/workflow-kit-plan/template/SCOPE-TEMPLATE.md'
-check_exists 'skill-drafts/workflow-kit-list/SKILL.md'
-check_exists 'skill-drafts/workflow-kit-list/workflow_list_specs.py'
+check_not_exists 'templates'
+check_not_exists 'skill-drafts'
+check_not_exists 'docs/workflow-spec.md'
+check_not_exists 'skills/workflow-kit-specify/template/SCOPE-TEMPLATE.md'
 
-if [[ -f 'skill-drafts/workflow-kit-specify/specify-skill.md' ]]; then
-  echo 'FAIL: stale duplicate skill file exists: skill-drafts/workflow-kit-specify/specify-skill.md'
+check_exists 'docs/workflow.md'
+check_exists 'skills/workflow-kit/SKILL.md'
+check_exists 'skills/workflow-kit-list/SKILL.md'
+check_exists 'skills/workflow-kit-list/workflow_list_specs.py'
+check_exists 'skills/workflow-kit-specify/SKILL.md'
+check_exists 'skills/workflow-kit-specify/template/SPEC-TEMPLATE.md'
+check_exists 'skills/workflow-kit-plan/SKILL.md'
+check_exists 'skills/workflow-kit-plan/template/PLAN-TEMPLATE.md'
+check_exists 'skills/workflow-kit-plan/template/RESEARCH-TEMPLATE.md'
+check_exists 'skills/workflow-kit-plan/template/DATA-MODEL-TEMPLATE.md'
+check_exists 'skills/workflow-kit-plan/template/SCOPE-TEMPLATE.md'
+check_exists 'skills/workflow-kit-tasks/SKILL.md'
+check_exists 'skills/workflow-kit-tasks/template/TASKS-TEMPLATE.json'
+check_exists 'skills/workflow-kit-tasks/template/VERIFICATION-TEMPLATE.md'
+check_exists 'skills/workflow-kit-implement/SKILL.md'
+check_exists 'skills/workflow-kit-verify/SKILL.md'
+
+if [[ -f 'skills/workflow-kit-specify/specify-skill.md' ]]; then
+  echo 'FAIL: stale duplicate skill file exists: skills/workflow-kit-specify/specify-skill.md'
   fail=1
 fi
 
-check_same 'templates/change/spec.md' 'skill-drafts/workflow-kit-specify/template/SPEC-TEMPLATE.md'
-check_same 'templates/change/research.md' 'skill-drafts/workflow-kit-plan/template/RESEARCH-TEMPLATE.md'
-check_same 'templates/change/plan.md' 'skill-drafts/workflow-kit-plan/template/PLAN-TEMPLATE.md'
-check_same 'templates/change/data-model.md' 'skill-drafts/workflow-kit-plan/template/DATA-MODEL-TEMPLATE.md'
-check_same 'templates/change/scope.md' 'skill-drafts/workflow-kit-plan/template/SCOPE-TEMPLATE.md'
-check_same 'templates/change/scope.md' 'skill-drafts/workflow-kit-specify/template/SCOPE-TEMPLATE.md'
-check_same 'templates/change/tasks.json' 'skill-drafts/workflow-kit-tasks/template/TASKS-TEMPLATE.json'
-check_same 'templates/change/verification.md' 'skill-drafts/workflow-kit-tasks/template/VERIFICATION-TEMPLATE.md'
-
-if ! python3 -m json.tool templates/change/tasks.json >/dev/null; then
-  echo 'FAIL: templates/change/tasks.json is not valid JSON'
+if ! python3 -m json.tool skills/workflow-kit-tasks/template/TASKS-TEMPLATE.json >/dev/null; then
+  echo 'FAIL: skills/workflow-kit-tasks/template/TASKS-TEMPLATE.json is not valid JSON'
   fail=1
 fi
 
-if ! python3 -m json.tool skill-drafts/workflow-kit-tasks/template/TASKS-TEMPLATE.json >/dev/null; then
-  echo 'FAIL: skill-drafts/workflow-kit-tasks/template/TASKS-TEMPLATE.json is not valid JSON'
-  fail=1
-fi
-
-# Verify tasks.json templates have required top-level and per-task fields.
+# Verify tasks.json template has required top-level and per-task fields.
 required_top='"version"  "change"  "spec"  "plan"  "scope"  "verification"  "statusValues"  "tasks"  "execution"  "coverage"  "summary"'
 required_task='"id"  "title"  "details"  "status"  "priority"  "refs"  "dependsOn"  "parallel"  "confirmationRequired"  "files"  "checks"  "verification"'
 
-for tmpl in templates/change/tasks.json skill-drafts/workflow-kit-tasks/template/TASKS-TEMPLATE.json; do
-  for key in $required_top; do
-    if ! grep -q "$key" "$tmpl"; then
-      echo "FAIL: $tmpl missing top-level field $key"
-      fail=1
-    fi
-  done
-  for key in $required_task; do
-    if ! grep -q "$key" "$tmpl"; then
-      echo "FAIL: $tmpl missing task field $key"
-      fail=1
-    fi
-  done
+tmpl='skills/workflow-kit-tasks/template/TASKS-TEMPLATE.json'
+for key in $required_top; do
+  if ! grep -q "$key" "$tmpl"; then
+    echo "FAIL: $tmpl missing top-level field $key"
+    fail=1
+  fi
+done
+for key in $required_task; do
+  if ! grep -q "$key" "$tmpl"; then
+    echo "FAIL: $tmpl missing task field $key"
+    fail=1
+  fi
 done
 
 if (( fail )); then

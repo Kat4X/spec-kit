@@ -30,7 +30,6 @@ plan.md
 data-model.md         # optional
 scope.md
 tasks.json
-implementation-fix.md # optional
 verification.md
 ```
 
@@ -51,7 +50,7 @@ verification.md
 - Если spec неверна — меняй `spec.md`.
 - Если spec верна, но код ошибся — создай implementation fix task/note.
 
-## Связанные draft skills
+## Связанные skills
 
 - `workflow-kit-list`
 - `workflow-kit-specify`

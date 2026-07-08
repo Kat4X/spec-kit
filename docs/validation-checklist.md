@@ -10,7 +10,7 @@
 - [ ] Есть `scope.md`.
 - [ ] Есть `tasks.json`.
 - [ ] После `tasks` есть заготовка `verification.md`, после реализации она заполнена результатами.
-- [ ] Опциональные файлы (`research.md`, `data-model.md`, `implementation-fix.md`) созданы только если нужны.
+- [ ] Опциональные файлы (`research.md`, `data-model.md`) созданы только если нужны.
 
 ## 2. Проверка `spec.md`
 
