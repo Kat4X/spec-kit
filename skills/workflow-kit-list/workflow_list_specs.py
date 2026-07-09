@@ -5,13 +5,14 @@ The scanner is intentionally dependency-free: it only reads ai/specs/* and
 computes readiness from tasks.json and required workflow artifacts.
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, List, Optional, Tuple
+
+if sys.version_info < (3, 8):
+    raise SystemExit("Workflow Kit requires Python 3.8+")
 
 DONE_STATUSES = {"done", "skipped"}
 KNOWN_STATUSES = {"pending", "in_progress", "done", "blocked", "skipped"}
@@ -65,6 +66,13 @@ def parse_args() -> argparse.Namespace:
         default=5,
         help="Maximum ready/blocked tasks shown per workspace in text output. Default: 5.",
     )
+    parser.add_argument(
+        "--next-task",
+        nargs="?",
+        const="",
+        metavar="WORKSPACE",
+        help="Print only the first runnable task as JSON. WORKSPACE can be a path or workspace name; omitted means first READY workspace.",
+    )
     return parser.parse_args()
 
 
@@ -79,7 +87,7 @@ def clean_string(value: Any, fallback: str = "") -> str:
     return text if text else fallback
 
 
-def task_summary(task: dict[str, Any], reason: str | None = None) -> dict[str, Any]:
+def task_summary(task: Dict[str, Any], reason: Optional[str] = None) -> Dict[str, Any]:
     return {
         "id": clean_string(task.get("id"), "<no-id>"),
         "priority": clean_string(task.get("priority")),
@@ -89,7 +97,7 @@ def task_summary(task: dict[str, Any], reason: str | None = None) -> dict[str, A
     }
 
 
-def dependency_list(task: dict[str, Any]) -> tuple[list[str], list[str]]:
+def dependency_list(task: Dict[str, Any]) -> Tuple[List[str], List[str]]:
     raw_deps = task.get("dependsOn", [])
     if raw_deps is None:
         return [], []
@@ -98,7 +106,7 @@ def dependency_list(task: dict[str, Any]) -> tuple[list[str], list[str]]:
     return [clean_string(dep) for dep in raw_deps if clean_string(dep)], []
 
 
-def initial_result(workspace: Path) -> dict[str, Any]:
+def initial_result(workspace: Path) -> Dict[str, Any]:
     return {
         "name": workspace.name,
         "path": str(workspace),
@@ -119,7 +127,7 @@ def initial_result(workspace: Path) -> dict[str, Any]:
     }
 
 
-def evaluate_workspace(workspace: Path) -> dict[str, Any]:
+def evaluate_workspace(workspace: Path) -> Dict[str, Any]:
     result = initial_result(workspace)
 
     has_spec = (workspace / "spec.md").is_file()
@@ -192,8 +200,8 @@ def evaluate_workspace(workspace: Path) -> dict[str, Any]:
     }
     done_ids.discard("")
 
-    ready_tasks: list[dict[str, Any]] = []
-    blocked_tasks: list[dict[str, Any]] = []
+    ready_tasks: List[Dict[str, Any]] = []
+    blocked_tasks: List[Dict[str, Any]] = []
     status_counts = {"done": 0, "pending": 0, "blocked": 0, "in_progress": 0, "skipped": 0}
     unfinished_count = 0
 
@@ -221,7 +229,7 @@ def evaluate_workspace(workspace: Path) -> dict[str, Any]:
             deps, dep_errors = dependency_list(raw_task)
             unknown_deps = [dep for dep in deps if dep not in task_ids]
             unmet_deps = [dep for dep in deps if dep not in done_ids]
-            reasons: list[str] = []
+            reasons: List[str] = []
             reasons.extend(dep_errors)
             if unknown_deps:
                 reasons.append("unknown deps: " + ", ".join(unknown_deps))
@@ -269,7 +277,31 @@ def specs_path(root: Path, specs_dir: str) -> Path:
     return root / candidate
 
 
-def discover_workspaces(base_dir: Path) -> list[Path]:
+def resolve_workspace(root: Path, base_dir: Path, value: str) -> Path:
+    candidate = Path(value)
+    if candidate.is_absolute() or candidate.parts:
+        path = candidate if candidate.is_absolute() else root / candidate
+        if path.is_dir():
+            return path
+    return base_dir / value
+
+
+def load_first_ready_task(workspace: Path, ready_id: str) -> Optional[Dict[str, Any]]:
+    try:
+        with (workspace / "tasks.json").open("r", encoding="utf-8") as file:
+            tasks_data = json.load(file)
+    except (OSError, json.JSONDecodeError):
+        return None
+    tasks = tasks_data.get("tasks") if isinstance(tasks_data, dict) else None
+    if not isinstance(tasks, list):
+        return None
+    for task in tasks:
+        if isinstance(task, dict) and clean_string(task.get("id")) == ready_id:
+            return task
+    return None
+
+
+def discover_workspaces(base_dir: Path) -> List[Path]:
     if not base_dir.is_dir():
         return []
     return sorted(
@@ -286,7 +318,7 @@ def status_index(status: str) -> int:
         return len(GROUP_ORDER)
 
 
-def filtered_results(results: list[dict[str, Any]], args: argparse.Namespace) -> list[dict[str, Any]]:
+def filtered_results(results: List[Dict[str, Any]], args: argparse.Namespace) -> List[Dict[str, Any]]:
     statuses = set(args.status or [])
     if statuses:
         return [item for item in results if item["status"] in statuses]
@@ -295,7 +327,7 @@ def filtered_results(results: list[dict[str, Any]], args: argparse.Namespace) ->
     return [item for item in results if item["status"] in DEFAULT_VISIBLE]
 
 
-def print_task_list(title: str, tasks: list[dict[str, Any]], max_next: int) -> None:
+def print_task_list(title: str, tasks: List[Dict[str, Any]], max_next: int) -> None:
     if not tasks:
         return
     print(f"  {title}:")
@@ -307,7 +339,7 @@ def print_task_list(title: str, tasks: list[dict[str, Any]], max_next: int) -> N
         print(f"    ... +{len(tasks) - max_next} more")
 
 
-def print_text(results: list[dict[str, Any]], hidden_done: int, max_next: int) -> None:
+def print_text(results: List[Dict[str, Any]], hidden_done: int, max_next: int) -> None:
     if not results:
         print("No Workflow Kit workspaces found for the selected filters.")
         return
@@ -354,10 +386,26 @@ def main() -> int:
             print(message, file=sys.stderr)
         return 1
 
-    results = [evaluate_workspace(workspace) for workspace in discover_workspaces(base_dir)]
+    discovered = discover_workspaces(base_dir)
+    results = [evaluate_workspace(workspace) for workspace in discovered]
     # Keep workspaces newest-first inside each status group. discover_workspaces()
     # already returns names in descending timestamp order; Python sort is stable.
     results.sort(key=lambda item: status_index(item["status"]))
+
+    if args.next_task is not None:
+        if args.next_task:
+            workspace = resolve_workspace(root, base_dir, args.next_task).resolve()
+            result = evaluate_workspace(workspace)
+        else:
+            result = next((item for item in results if item["status"] == "READY"), None)
+            workspace = Path(result["path"]).resolve() if result else None
+
+        task = None
+        if result and workspace and result["readyTasks"]:
+            task = load_first_ready_task(workspace, result["readyTasks"][0]["id"])
+        print(json.dumps({"workspace": result, "task": task}, ensure_ascii=False, indent=2))
+        return 0 if task else 1
+
     visible = filtered_results(results, args)
     hidden_done = 0 if args.all or args.status else sum(1 for item in results if item["status"] == "DONE")
 

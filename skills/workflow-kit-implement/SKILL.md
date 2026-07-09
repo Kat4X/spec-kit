@@ -47,9 +47,17 @@ metadata:
 
 ### 2. Загрузи контекст до правок
 
+Получи выбранную задачу без чтения всего `tasks.json` в контекст:
+
+```bash
+python3 skills/workflow-kit-list/workflow_list_specs.py --root . --next-task <workspace>
+```
+
+Если нужен конкретный `Txxx` или batch/yolo, тогда читай `tasks.json` целиком.
+
 Прочитай:
 
-- `tasks.json`;
+- выбранную задачу из команды выше или нужную часть `tasks.json`;
 - `verification.md`;
 - `scope.md`;
 - `plan.md`;
@@ -63,10 +71,8 @@ metadata:
 
 ### 3. Выбери задачу или batch
 
-Перед выбором проверь, что `tasks.json` — валидный JSON.
-
 - Если указан `Txxx` — работай только с задачей с таким `id`.
-- Если `task-id` не указан и batch/yolo не запрошен — выбери первую задачу из `tasks[]` со `status: "pending"`, которую можно выполнить сейчас.
+- Если `task-id` не указан и batch/yolo не запрошен — используй `workflow_list_specs.py --next-task <workspace>` и работай с возвращённой задачей.
 - Если явно запрошен batch/yolo — построй очередь из `pending` задач, которые dependency-ready и не требуют подтверждения; выполняй их по `execution.order` / `dependsOn`, пока не встретишь блокер.
 - Проверь `dependsOn`, `confirmationRequired`, `confirmation`, `refs`, `files` и `checks` выбранной задачи или всех задач batch-очереди.
 - Зависимость считается выполненной только если зависимая задача имеет `status: "done"` или обоснованный `status: "skipped"`; внутри batch зависимость может считаться выполненной после успешной реализации и проверки предыдущей задачи из той же очереди.
@@ -160,21 +166,7 @@ Implementation fix в MVP фиксируй как задачу в `tasks.json` �
 
 ### 9. Git и `.gitignore`
 
-Нельзя добавлять в git файлы или директории, которые игнорируются `.gitignore`, без явного разрешения пользователя. Не используй `git add -f` для workflow artifacts.
-
-Перед `git add`/commit проверь созданные и изменённые файлы одним из способов:
-
-```bash
-git check-ignore -v -- <path>
-git status --short --ignored
-```
-
-Политика коммита:
-
-- Не выполняй `git add`, commit или push без явного запроса пользователя.
-- Если пользователь попросил подготовить commit, включай только атомарный результат выполненной задачи и обновлённые workflow artifacts, предварительно проверив `.gitignore`.
-- Если workspace находится в ignored-директории, не добавляй его в git и явно скажи в финале: `workflow artifacts не закоммичены, потому что путь игнорируется .gitignore`.
-- Не добавляй ignored-файлы без явного разрешения пользователя.
+Не выполняй `git add`, commit или push без явного запроса. Если пользователь попросил commit/stage — сначала проверь `git status --short --ignored` или `git check-ignore -v -- <path>` и не добавляй ignored-файлы без явного разрешения.
 
 ### 10. Результат после задачи или batch
 
@@ -233,10 +225,3 @@ Workflow artifacts:
 - объясни блокер;
 - скажи, что нужно сделать дальше;
 - явно укажи, что файлы не изменены.
-
-## Связанные скиллы
-
-- `workflow-kit-specify`
-- `workflow-kit-plan`
-- `workflow-kit-tasks`
-- `workflow-kit-verify`

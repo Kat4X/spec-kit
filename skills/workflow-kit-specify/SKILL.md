@@ -43,11 +43,13 @@ Atomic change может быть целой фичей с нескольким�
 
 Перед созданием файлов проверь доступность `template/SPEC-TEMPLATE.md`. Если шаблон недоступен — остановись и сообщи, что отсутствует обязательный шаблон; workspace не создавай.
 
-- Сгенерируй `change-name`: 2–5 слов в kebab-case.
-- Получи timestamp: `date +%Y%m%d_%H%M`.
-- Создай директорию: `ai/specs/YYYYMMDD_HHMM_change-name/`.
-- Если директория уже существует, не перезаписывай её: получи новый timestamp или добавь короткий suffix к `change-name`.
-- Создай `spec.md` по `template/SPEC-TEMPLATE.md`.
+Создай workspace скриптом из этого skill'а:
+
+```bash
+python3 skills/workflow-kit-specify/create_workspace.py "change name" --root .
+```
+
+Скрипт нормализует `change-name`, создаёт `ai/specs/YYYY.MM.DD_HH:MM_change-name/` и копирует `template/SPEC-TEMPLATE.md` в `spec.md`.
 
 Workspace — это контейнер работы, а не награда за идеально собранные требования. Но он должен соответствовать одному atomic change.
 
@@ -137,21 +139,7 @@ Workspace — это контейнер работы, а не награда з�
 
 ### 8. Git и `.gitignore`
 
-Нельзя добавлять в git файлы или директории, которые игнорируются `.gitignore`, без явного разрешения пользователя. Не используй `git add -f` для workflow artifacts.
-
-Перед `git add`/commit проверь созданные и изменённые артефакты одним из способов:
-
-```bash
-git check-ignore -v -- <path>
-git status --short --ignored
-```
-
-Политика коммита:
-
-- Не выполняй `git add`, commit или push без явного запроса пользователя.
-- Если пользователь попросил подготовить commit, добавляй только не ignored workflow artifacts (`spec.md`, `scope.md`, связанные plan/tasks) и сначала проверь `.gitignore`.
-- Если workspace находится в ignored-директории, не добавляй его в git и явно скажи в финале: `не закоммичено, потому что путь игнорируется .gitignore`.
-- Временные анализы, черновики и exploratory-артефакты не коммить без явного запроса.
+Не выполняй `git add`, commit или push без явного запроса. Если пользователь попросил commit/stage — сначала проверь `git status --short --ignored` или `git check-ignore -v -- <path>` и не добавляй ignored-файлы без явного разрешения.
 
 ### 9. Результат
 
@@ -173,10 +161,3 @@ git status --short --ignored
 - блокирующие вопросы;
 - что будет следующим шагом после ответа пользователя;
 - явно укажи: workspace не создан.
-
-## Связанные скиллы
-
-- `workflow-kit-plan`
-- `workflow-kit-tasks`
-- `workflow-kit-implement`
-- `workflow-kit-verify`

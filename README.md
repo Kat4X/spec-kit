@@ -33,7 +33,7 @@ Skill объясняет процесс, файлы хранят состоян�
 ## Структура change workspace
 
 ```text
-ai/specs/YYYYMMDD_HHMM_change-name/
+ai/specs/YYYY.MM.DD_HH:MM_change-name/
 ├── spec.md             # что и зачем
 ├── research.md         # опционально: что выяснили перед планом
 ├── plan.md             # как делаем
@@ -55,18 +55,6 @@ spec.md  plan.md  tasks.json  code      verification.md
         scope.md  file paths  task statuses
 ```
 
-## Что улучшено после первой проверки в Yutori
-
-Изначальный черновик использовал `tasks.md` как Markdown-чеклист. После реального прогона workflow усилен так:
-
-- `tasks.md` заменён на валидный `tasks.json` с явными `status`, `dependsOn`, `parallel`, `confirmationRequired`, `files`, `checks` и task-level `verification`.
-- Добавлены режимы исполнения: normal mode выполняет одну следующую задачу, batch/YOLO mode выполняет dependency-ready очередь только по явному запросу пользователя.
-- Добавлена batch artifact policy: обновлять `tasks.json`/`verification.md` на checkpoint-ах, не дублировать проверки и не ставить `done` без required checks или честного объяснения.
-- Добавлена consolidated check policy: широкая финальная команда может покрывать несколько task-level checks и фиксируется как `covered`, а не как пачка повторных запусков.
-- Добавлен `workflow-kit-list` — read-only scanner workspaces по `ai/specs/*`, который показывает `READY`, `BLOCKED`, `DONE`, `NEEDS_PLAN`, `NEEDS_TASKS`, `LEGACY`, `BROKEN` и первую runnable task.
-- Уточнены stop conditions: Forbidden/Requires confirmation, schema/config/shared-surface risk, failing required checks и продуктовые вопросы всегда останавливают implementation.
-- Усилен verify: `Ready` запрещён при `pending`/`in_progress`/`blocked` задачах, нарушении scope или непроверенном P0.
-
 ## Что взято из исследованных подходов
 
 | Источник | Что берём | Что не тащим |
@@ -87,19 +75,17 @@ spec.md  plan.md  tasks.json  code      verification.md
 
 ```text
 docs/
-  workflow.md              # спецификация самого Workflow Kit
   artifact-contracts.md    # контракт файлов
-  validation-checklist.md  # как проверять черновик
 
 scripts/
   check-consistency.sh     # sanity-check структуры, терминологии и шаблонов
 
 skills/
-  workflow-kit/            # overview/router
-  workflow-kit-list/       # read-only scanner workspaces и runnable tasks
-  workflow-kit-specify/    # владеет template/SPEC-TEMPLATE.md
-  workflow-kit-plan/       # владеет plan/research/data-model/scope templates
-  workflow-kit-tasks/      # владеет tasks/verification templates
+  workflow-kit/
+  workflow-kit-list/
+  workflow-kit-specify/
+  workflow-kit-plan/
+  workflow-kit-tasks/
   workflow-kit-implement/
   workflow-kit-verify/
 ```

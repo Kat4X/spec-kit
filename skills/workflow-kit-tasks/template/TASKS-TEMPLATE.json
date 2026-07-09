@@ -7,7 +7,6 @@
   "dataModel": null,
   "scope": "scope.md",
   "verification": "verification.md",
-  "statusValues": ["pending", "in_progress", "done", "blocked", "skipped"],
   "tasks": [
     {
       "id": "T001",
@@ -83,7 +82,6 @@
   ],
   "execution": {
     "order": ["T001", "T002"],
-    "parallelGroups": [],
     "firstTask": "T001"
   },
   "coverage": [

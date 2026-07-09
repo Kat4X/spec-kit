@@ -140,21 +140,7 @@ metadata:
 
 ### 10. Git и `.gitignore`
 
-Нельзя добавлять в git файлы или директории, которые игнорируются `.gitignore`, без явного разрешения пользователя. Не используй `git add -f` для workflow artifacts.
-
-Перед `git add`/commit проверь созданные и изменённые артефакты одним из способов:
-
-```bash
-git check-ignore -v -- <path>
-git status --short --ignored
-```
-
-Политика коммита:
-
-- Не выполняй `git add`, commit или push без явного запроса пользователя.
-- Если пользователь попросил подготовить commit, добавляй только не ignored workflow artifacts (`plan.md`, `research.md`, `data-model.md`, `scope.md`) и сначала проверь `.gitignore`.
-- Если workspace находится в ignored-директории, не добавляй его в git и явно скажи в финале: `не закоммичено, потому что путь игнорируется .gitignore`.
-- Временные анализы, черновики и exploratory-артефакты не коммить без явного запроса.
+Не выполняй `git add`, commit или push без явного запроса. Если пользователь попросил commit/stage — сначала проверь `git status --short --ignored` или `git check-ignore -v -- <path>` и не добавляй ignored-файлы без явного разрешения.
 
 ### 11. Результат
 
@@ -179,10 +165,3 @@ git status --short --ignored
 - блокирующие вопросы или отсутствующие шаблоны;
 - что будет следующим шагом после ответа пользователя;
 - явно укажи: `plan.md` не создан.
-
-## Связанные скиллы
-
-- `workflow-kit-specify`
-- `workflow-kit-tasks`
-- `workflow-kit-implement`
-- `workflow-kit-verify`

@@ -18,7 +18,7 @@ specify → plan → tasks → implement → verify
 По умолчанию:
 
 ```text
-ai/specs/YYYYMMDD_HHMM_change-name/
+ai/specs/YYYY.MM.DD_HH:MM_change-name/
 ```
 
 Файлы:

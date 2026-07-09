@@ -39,6 +39,18 @@ python3 .agents/skills/workflow-kit-list/workflow_list_specs.py --all
 python3 .agents/skills/workflow-kit-list/workflow_list_specs.py --json
 ```
 
+Только первый runnable task без вывода всего `tasks.json`:
+
+```bash
+python3 .agents/skills/workflow-kit-list/workflow_list_specs.py --next-task ai/specs/2026.06.08_17:45_ui-review-fixes
+```
+
+Без аргумента берётся первый READY workspace:
+
+```bash
+python3 .agents/skills/workflow-kit-list/workflow_list_specs.py --next-task
+```
+
 Только конкретные статусы:
 
 ```bash
@@ -62,17 +74,17 @@ python3 .agents/skills/workflow-kit-list/workflow_list_specs.py --status READY -
 3. Для каждого `READY` назови progress, первые runnable tasks и команду запуска.
 4. `BLOCKED` показывай кратко: причина блокера и что закрыть.
 5. `DONE` не расписывай без запроса; scanner по умолчанию скрывает done-workspaces и показывает счётчик.
-6. Если пользователь просит начать реализацию, передай точный workspace/task в `workflow-kit-implement`.
+6. Если пользователь просит начать реализацию, передай точный workspace/task в `workflow-kit-implement`; для экономии контекста используй `--next-task`.
 
 Пример:
 
 ```text
 READY
-- 20260608_1745_ui-review-fixes — 0/8 done
+- 2026.06.08_17:45_ui-review-fixes — 0/8 done
   next:
     T001 P0 — Стабилизировать UI smoke-тесты
     T002 P0 — Синхронизировать денежные поля
-  command: workflow-kit-implement 20260608_1745_ui-review-fixes T001
+  command: workflow-kit-implement 2026.06.08_17:45_ui-review-fixes T001
 ```
 
 ## Правила

@@ -3,12 +3,12 @@
 ## Change workspace
 
 ```text
-ai/specs/YYYYMMDD_HHMM_change-name/
+ai/specs/YYYY.MM.DD_HH:MM_change-name/
 ```
 
 Правила имени:
 
-- timestamp: `YYYYMMDD_HHMM`;
+- timestamp: `YYYY.MM.DD_HH:MM`;
 - change-name: 2–5 слов в kebab-case;
 - одна папка = одна логическая единица работы.
 
@@ -22,7 +22,7 @@ tasks.json
 verification.md
 ```
 
-`research.md` и `data-model.md` создаются по необходимости. Implementation fix фиксируется как задача/verification evidence, а не отдельный обязательный артефакт MVP.
+`research.md` и `data-model.md` создаются по необходимости.
 
 ## `spec.md`
 
@@ -153,9 +153,8 @@ Batch/YOLO не отменяет stop conditions: `Forbidden`, `Requires confirm
 - `change` — название change.
 - `spec`, `plan`, `scope`, `verification` — ссылки на артефакты workspace.
 - `research`, `dataModel` — строка с путём или `null`.
-- `statusValues` — допустимые статусы.
 - `tasks` — массив задач.
-- `execution` — порядок, parallel groups и первая задача: `order` (плоский массив всех task IDs), `parallelGroups` (массив групп, например `[["T003", "T004"]]`), `firstTask` (ID первой задачи).
+- `execution` — порядок и первая задача: `order` (плоский массив всех task IDs), `firstTask` (ID первой задачи).
 - `coverage` — соответствие требований задачам и проверкам.
 - `summary` — агрегаты для быстрого чтения.
 
@@ -200,13 +199,11 @@ Batch/YOLO не отменяет stop conditions: `Forbidden`, `Requires confirm
 
 - ID уникальный и монотонный: `T001`, `T002`, ...
 - Допустимые `status`: `pending`, `in_progress`, `done`, `blocked`, `skipped`.
-- `statusValues` хранит допустимые статусы внутри файла для автоматизации и валидации без внешней схемы.
 - `done` ставится только после успешной обязательной проверки или явно записанного объяснения, почему проверка невозможна.
 - `parallel: true` означает возможность параллельного выполнения после выполнения `dependsOn`.
 - `confirmationRequired: true` означает, что implement должен остановиться до подтверждения пользователя.
 - `refs` связывает задачу с требованиями из spec: `US-1`, `Case-1`, `R-001`, `NFR-001`.
 - `execution.order` — плоский массив всех task IDs в порядке выполнения.
-- `execution.parallelGroups` — массив групп task IDs, которые можно выполнять параллельно: `[["T003", "T004"], ["T006", "T007"]]`.
 - `execution.firstTask` — ID первой задачи для старта.
 - Задача ≤ 1 часа работы или должна быть разбита.
 - Задача содержит явные `files` и `checks` или проверяемый manual scenario.
