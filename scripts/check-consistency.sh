@@ -43,7 +43,7 @@ if rg -n "$action_paths_pattern" README.md docs skills >/tmp/workflow-kit-check.
 fi
 rm -f /tmp/workflow-kit-check.$$
 
-for path in templates skill-drafts docs/workflow-spec.md skills/workflow-kit-specify/template/SCOPE-TEMPLATE.md; do
+for path in templates skill-drafts docs/workflow-spec.md .agents/skills/workflow-kit-specify/template/SCOPE-TEMPLATE.md; do
   if [[ -e "$path" ]]; then
     echo "FAIL: stale path exists: $path"
     fail=1
@@ -52,32 +52,32 @@ done
 
 for path in \
   scripts/workflow-kit \
-  skills/workflow-kit/SKILL.md \
-  skills/workflow-kit-list/SKILL.md \
-  skills/workflow-kit-list/workflow_list_specs.py \
-  skills/workflow-kit-specify/SKILL.md \
-  skills/workflow-kit-specify/create_workspace.py \
-  skills/workflow-kit-specify/template/SPEC-TEMPLATE.md \
-  skills/workflow-kit-plan/SKILL.md \
-  skills/workflow-kit-plan/template/PLAN-TEMPLATE.md \
-  skills/workflow-kit-plan/template/RESEARCH-TEMPLATE.md \
-  skills/workflow-kit-plan/template/DATA-MODEL-TEMPLATE.md \
-  skills/workflow-kit-plan/template/SCOPE-TEMPLATE.md \
-  skills/workflow-kit-tasks/SKILL.md \
-  skills/workflow-kit-tasks/template/TASKS-TEMPLATE.json \
-  skills/workflow-kit-tasks/template/VERIFICATION-TEMPLATE.md \
-  skills/workflow-kit-implement/SKILL.md \
-  skills/workflow-kit-verify/SKILL.md; do
+  .agents/skills/workflow-kit/SKILL.md \
+  .agents/skills/workflow-kit-list/SKILL.md \
+  .agents/skills/workflow-kit-list/workflow_list_specs.py \
+  .agents/skills/workflow-kit-specify/SKILL.md \
+  .agents/skills/workflow-kit-specify/create_workspace.py \
+  .agents/skills/workflow-kit-specify/template/SPEC-TEMPLATE.md \
+  .agents/skills/workflow-kit-plan/SKILL.md \
+  .agents/skills/workflow-kit-plan/template/PLAN-TEMPLATE.md \
+  .agents/skills/workflow-kit-plan/template/RESEARCH-TEMPLATE.md \
+  .agents/skills/workflow-kit-plan/template/DATA-MODEL-TEMPLATE.md \
+  .agents/skills/workflow-kit-plan/template/SCOPE-TEMPLATE.md \
+  .agents/skills/workflow-kit-tasks/SKILL.md \
+  .agents/skills/workflow-kit-tasks/template/TASKS-TEMPLATE.json \
+  .agents/skills/workflow-kit-tasks/template/VERIFICATION-TEMPLATE.md \
+  .agents/skills/workflow-kit-implement/SKILL.md \
+  .agents/skills/workflow-kit-verify/SKILL.md; do
   check_exists "$path"
 done
 
-if [[ -f 'skills/workflow-kit-specify/specify-skill.md' ]]; then
-  echo 'FAIL: stale duplicate skill file exists: skills/workflow-kit-specify/specify-skill.md'
+if [[ -f '.agents/skills/workflow-kit-specify/specify-skill.md' ]]; then
+  echo 'FAIL: stale duplicate skill file exists: .agents/skills/workflow-kit-specify/specify-skill.md'
   fail=1
 fi
 
-if ! python3 -m json.tool skills/workflow-kit-tasks/template/TASKS-TEMPLATE.json >/dev/null; then
-  echo 'FAIL: skills/workflow-kit-tasks/template/TASKS-TEMPLATE.json is not valid JSON'
+if ! python3 -m json.tool .agents/skills/workflow-kit-tasks/template/TASKS-TEMPLATE.json >/dev/null; then
+  echo 'FAIL: .agents/skills/workflow-kit-tasks/template/TASKS-TEMPLATE.json is not valid JSON'
   fail=1
 fi
 

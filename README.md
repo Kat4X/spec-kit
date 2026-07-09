@@ -4,7 +4,7 @@
 
 ## Статус
 
-Черновик для валидации. Не установлен в `.agents/skills/` и не является активным workflow.
+Черновик для валидации. Установлен в `.agents/skills/` для локальной проверки.
 
 ## Зачем
 
@@ -72,7 +72,7 @@ docs/
 scripts/
   check-consistency.sh     # sanity-check структуры, терминологии и шаблонов
 
-skills/
+.agents/skills/
   workflow-kit/
   workflow-kit-list/
   workflow-kit-specify/
