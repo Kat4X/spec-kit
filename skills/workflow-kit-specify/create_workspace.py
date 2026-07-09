@@ -4,12 +4,8 @@
 import argparse
 import re
 import shutil
-import sys
 from datetime import datetime
 from pathlib import Path
-
-if sys.version_info < (3, 8):
-    raise SystemExit("Workflow Kit requires Python 3.8+")
 
 
 def slug(value: str) -> str:

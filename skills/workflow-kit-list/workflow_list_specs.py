@@ -11,9 +11,6 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-if sys.version_info < (3, 8):
-    raise SystemExit("Workflow Kit requires Python 3.8+")
-
 DONE_STATUSES = {"done", "skipped"}
 KNOWN_STATUSES = {"pending", "in_progress", "done", "blocked", "skipped"}
 GROUP_ORDER = [

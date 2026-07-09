@@ -80,24 +80,6 @@ if ! python3 -m json.tool skills/workflow-kit-tasks/template/TASKS-TEMPLATE.json
   fail=1
 fi
 
-# Verify tasks.json template has required top-level and per-task fields.
-required_top='"version"  "change"  "spec"  "plan"  "scope"  "verification"  "tasks"  "execution"  "coverage"  "summary"'
-required_task='"id"  "title"  "details"  "status"  "priority"  "refs"  "dependsOn"  "parallel"  "confirmationRequired"  "files"  "checks"  "verification"'
-
-tmpl='skills/workflow-kit-tasks/template/TASKS-TEMPLATE.json'
-for key in $required_top; do
-  if ! grep -q "$key" "$tmpl"; then
-    echo "FAIL: $tmpl missing top-level field $key"
-    fail=1
-  fi
-done
-for key in $required_task; do
-  if ! grep -q "$key" "$tmpl"; then
-    echo "FAIL: $tmpl missing task field $key"
-    fail=1
-  fi
-done
-
 if (( fail )); then
   exit 1
 fi

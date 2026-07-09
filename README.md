@@ -63,14 +63,6 @@ spec.md  plan.md  tasks.json  code      verification.md
 | CodeSpeak | managed files, mixed-mode границы, spec bug vs implementation bug, test feedback loop | specs как полный replacement кода |
 | WORKFLOW-SKILL | простой цикл specify/plan/tasks/implement, P0/P1/P2, stop conditions | жёсткую привязку к Yutori |
 
-## Что валидировать в этом черновике
-
-1. Остаётся ли обязательный минимальный `scope.md` достаточно лёгким для маленьких задач?
-2. Не слишком ли тяжёлый `spec.md` для маленьких задач?
-3. Достаточна ли JSON-схема `tasks.json` для автоматизации без CLI?
-4. Работают ли skills без CLI и без установки?
-5. Какие поля надо сделать обязательными для всех проектов, а какие оставить project rules?
-
 ## Содержимое
 
 ```text
