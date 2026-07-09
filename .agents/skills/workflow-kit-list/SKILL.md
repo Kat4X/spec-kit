@@ -45,6 +45,12 @@ scripts/workflow-kit list --json
 scripts/workflow-kit next-task ai/specs/2026.06.08_17:45_ui-review-fixes
 ```
 
+Только конкретная task без вывода всего `tasks.json`:
+
+```bash
+scripts/workflow-kit next-task ai/specs/2026.06.08_17:45_ui-review-fixes --task-id T003
+```
+
 Без аргумента берётся первый READY workspace:
 
 ```bash

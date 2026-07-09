@@ -47,17 +47,22 @@ metadata:
 
 ### 2. Загрузи контекст до правок
 
-Получи выбранную задачу без чтения всего `tasks.json` в контекст:
+Получай task payload через CLI:
 
 ```bash
 scripts/workflow-kit next-task <workspace> --root .
+scripts/workflow-kit next-task <workspace> --task-id Txxx --root .
 ```
 
-Если нужен конкретный `Txxx` или batch/yolo, тогда читай `tasks.json` целиком.
+Для batch/yolo сначала получи компактную очередь, затем подгружай задачи по одной через `next-task --task-id`:
+
+```bash
+scripts/workflow-kit list --json --status READY --root .
+```
 
 Прочитай:
 
-- выбранную задачу из команды выше или нужную часть `tasks.json`;
+- task payload из команды выше;
 - `verification.md`;
 - `scope.md`;
 - `plan.md`;
@@ -71,7 +76,7 @@ scripts/workflow-kit next-task <workspace> --root .
 
 ### 3. Выбери задачу или batch
 
-- Если указан `Txxx` — работай только с задачей с таким `id`.
+- Если указан `Txxx` — используй `scripts/workflow-kit next-task <workspace> --task-id Txxx` и работай только с задачей с таким `id`.
 - Если `task-id` не указан и batch/yolo не запрошен — используй `scripts/workflow-kit next-task <workspace>` и работай с возвращённой задачей.
 - Если явно запрошен batch/yolo — построй очередь из `pending` задач, которые dependency-ready и не требуют подтверждения; выполняй их по `execution.order` / `dependsOn`, пока не встретишь блокер.
 - Проверь `dependsOn`, `confirmationRequired`, `confirmation`, `refs`, `files` и `checks` выбранной задачи или всех задач batch-очереди.

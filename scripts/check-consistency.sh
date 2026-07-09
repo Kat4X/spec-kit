@@ -7,7 +7,7 @@ check_absent() {
   local pattern="$1"
   local description="$2"
 
-  if rg -n "$pattern" README.md docs skills scripts >/tmp/workflow-kit-check.$$; then
+  if rg -n "$pattern" README.md docs .agents/skills scripts >/tmp/workflow-kit-check.$$; then
     echo "FAIL: $description"
     cat /tmp/workflow-kit-check.$$
     fail=1
@@ -36,7 +36,7 @@ check_absent 'TASKS-TEMPLATE[.]md' 'stale Markdown tasks template found; use tas
 check_absent 'tasks[.]md[[:space:]]+#' 'stale Markdown tasks artifact in workspace tree found; use tasks.json'
 check_absent "$duplicated_scope_heading" 'duplicated Scope heading found'
 check_absent "$ambiguous_parallel_pattern" 'ambiguous short parallel marker found; use parallel: true in tasks.json'
-if rg -n "$action_paths_pattern" README.md docs skills >/tmp/workflow-kit-check.$$; then
+if rg -n "$action_paths_pattern" README.md docs .agents/skills >/tmp/workflow-kit-check.$$; then
   echo 'FAIL: stale structure/reference found after skill-owned templates migration'
   cat /tmp/workflow-kit-check.$$
   fail=1

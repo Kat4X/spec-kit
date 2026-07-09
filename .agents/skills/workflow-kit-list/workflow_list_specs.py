@@ -70,6 +70,11 @@ def parse_args() -> argparse.Namespace:
         metavar="WORKSPACE",
         help="Print only the first runnable task as JSON. WORKSPACE can be a path or workspace name; omitted means first READY workspace.",
     )
+    parser.add_argument(
+        "--task-id",
+        metavar="TASK_ID",
+        help="With --next-task WORKSPACE, print this task instead of the first runnable task.",
+    )
     return parser.parse_args()
 
 
@@ -283,7 +288,7 @@ def resolve_workspace(root: Path, base_dir: Path, value: str) -> Path:
     return base_dir / value
 
 
-def load_first_ready_task(workspace: Path, ready_id: str) -> Optional[Dict[str, Any]]:
+def load_task(workspace: Path, task_id: str) -> Optional[Dict[str, Any]]:
     try:
         with (workspace / "tasks.json").open("r", encoding="utf-8") as file:
             tasks_data = json.load(file)
@@ -293,9 +298,23 @@ def load_first_ready_task(workspace: Path, ready_id: str) -> Optional[Dict[str, 
     if not isinstance(tasks, list):
         return None
     for task in tasks:
-        if isinstance(task, dict) and clean_string(task.get("id")) == ready_id:
+        if isinstance(task, dict) and clean_string(task.get("id")) == task_id:
             return task
     return None
+
+
+def compact_workspace(result: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    if result is None:
+        return None
+    return {
+        "name": result["name"],
+        "path": result["path"],
+        "status": result["status"],
+        "progress": result["progress"],
+        "missingFiles": result["missingFiles"],
+        "problems": result["problems"],
+        "command": result["command"],
+    }
 
 
 def discover_workspaces(base_dir: Path) -> List[Path]:
@@ -398,9 +417,11 @@ def main() -> int:
             workspace = Path(result["path"]).resolve() if result else None
 
         task = None
-        if result and workspace and result["readyTasks"]:
-            task = load_first_ready_task(workspace, result["readyTasks"][0]["id"])
-        print(json.dumps({"workspace": result, "task": task}, ensure_ascii=False, indent=2))
+        if result and workspace:
+            task_id = args.task_id or (result["readyTasks"][0]["id"] if result["readyTasks"] else "")
+            if task_id:
+                task = load_task(workspace, task_id)
+        print(json.dumps({"workspace": compact_workspace(result), "task": task}, ensure_ascii=False, indent=2))
         return 0 if task else 1
 
     visible = filtered_results(results, args)

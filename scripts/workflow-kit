@@ -8,7 +8,7 @@ usage: scripts/workflow-kit {create|list|next-task} ...
 commands:
   create NAME [--root DIR] [--specs-dir DIR]
   list [scanner args]
-  next-task [WORKSPACE] [scanner args]
+  next-task [WORKSPACE] [--task-id TASK_ID] [scanner args]
 EOF
 }
 
