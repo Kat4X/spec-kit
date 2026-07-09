@@ -51,6 +51,7 @@ for path in templates skill-drafts docs/workflow-spec.md skills/workflow-kit-spe
 done
 
 for path in \
+  scripts/workflow-kit \
   skills/workflow-kit/SKILL.md \
   skills/workflow-kit-list/SKILL.md \
   skills/workflow-kit-list/workflow_list_specs.py \

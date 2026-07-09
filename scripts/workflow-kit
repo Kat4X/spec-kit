@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat >&2 <<'EOF'
+usage: scripts/workflow-kit {create|list|next-task} ...
+
+commands:
+  create NAME [--root DIR] [--specs-dir DIR]
+  list [scanner args]
+  next-task [WORKSPACE] [scanner args]
+EOF
+}
+
+cmd="${1:-}"
+if [[ $# -gt 0 ]]; then
+  shift
+fi
+
+case "$cmd" in
+  create)
+    python3 skills/workflow-kit-specify/create_workspace.py "$@"
+    ;;
+  list)
+    python3 skills/workflow-kit-list/workflow_list_specs.py "$@"
+    ;;
+  next-task)
+    python3 skills/workflow-kit-list/workflow_list_specs.py --next-task "$@"
+    ;;
+  -h|--help|help)
+    usage
+    ;;
+  *)
+    usage
+    exit 2
+    ;;
+esac

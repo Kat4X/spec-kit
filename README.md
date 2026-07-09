@@ -87,13 +87,13 @@ skills/
 Из проекта, где лежат `ai/specs/*`, можно запустить:
 
 ```bash
-python3 skills/workflow-kit-list/workflow_list_specs.py --root .
+scripts/workflow-kit list --root .
 ```
 
 Для машинного вывода:
 
 ```bash
-python3 skills/workflow-kit-list/workflow_list_specs.py --root . --json
+scripts/workflow-kit list --root . --json
 ```
 
 ## Следующий шаг
