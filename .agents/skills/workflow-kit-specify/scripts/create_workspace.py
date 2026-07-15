@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 def slug(value: str) -> str:
-    text = re.sub(r"[^a-zA-Z0-9]+", "-", value.strip().lower()).strip("-")
+    text = "-".join(re.findall(r"[^\W_]+", value.strip().lower(), flags=re.UNICODE))
     return text or "change"
 
 
@@ -26,6 +26,9 @@ def main() -> int:
     root = Path(args.root).resolve()
     specs_dir = Path(args.specs_dir)
     base = specs_dir if specs_dir.is_absolute() else root / specs_dir
+    template = Path(__file__).resolve().parent.parent / "assets" / "SPEC-TEMPLATE.md"
+    if not template.is_file():
+        raise SystemExit(f"required template not found: {template}")
     base.mkdir(parents=True, exist_ok=True)
 
     name = slug(args.change_name)
@@ -37,8 +40,13 @@ def main() -> int:
         suffix += 1
 
     workspace.mkdir()
-    template = Path(__file__).resolve().parent / "template" / "SPEC-TEMPLATE.md"
-    shutil.copyfile(template, workspace / "spec.md")
+    target = workspace / "spec.md"
+    try:
+        shutil.copyfile(template, target)
+    except OSError:
+        target.unlink(missing_ok=True)
+        workspace.rmdir()
+        raise
     print(workspace)
     return 0
 

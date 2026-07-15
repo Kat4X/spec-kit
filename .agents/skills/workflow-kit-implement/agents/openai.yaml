@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Kit: реализация"
+  short_description: "Реализует следующую готовую задачу"
+  default_prompt: "Используй $workflow-kit-implement, чтобы выполнить следующую dependency-ready задачу."

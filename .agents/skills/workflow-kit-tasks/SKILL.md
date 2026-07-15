@@ -1,15 +1,13 @@
 ---
 name: workflow-kit-tasks
-description: Создание self-contained tasks.json по готовым spec.md, plan.md и scope.md. Используй после workflow-kit-plan, когда нужна машинно-читаемая очередь задач для workflow-kit-implement.
-metadata:
-  title: "Задачи реализации"
+description: "Используй когда по готовым spec.md, plan.md и scope.md нужно создать машинно-читаемый Workflow Kit tasks.json и verification.md: dependency-ready задачи, проверки, stop conditions и payload для workflow-kit-implement."
 ---
 
 # Workflow Kit: tasks
 
 Создай машинно-читаемые задачи реализации для изменения: `$ARGUMENTS`.
 
-Цель: создать валидный `tasks.json` для следующего AI-этапа `workflow-kit-implement`. `tasks.json` — source of truth для очереди исполнения: маленькие задачи, зависимости, scope files, проверки и статус. Не пиши код на этапе tasks.
+Цель: создать валидный `tasks.json` schema v2 для следующего AI-этапа `workflow-kit-implement`. `tasks.json` — source of truth для очереди исполнения: маленькие задачи, зависимости, scope files, проверки, подтверждения и статус. Не пиши код на этапе tasks.
 
 ## Порядок работы
 
@@ -34,8 +32,8 @@ metadata:
 
 Перед созданием файлов проверь доступность обязательных шаблонов:
 
-- `template/TASKS-TEMPLATE.json` — для `tasks.json`;
-- `template/VERIFICATION-TEMPLATE.md` — для `verification.md`.
+- `assets/TASKS-TEMPLATE.json` — для `tasks.json`;
+- `assets/VERIFICATION-TEMPLATE.md` — для `verification.md`.
 
 Если нужный шаблон недоступен — остановись и сообщи, какой шаблон отсутствует. Не создавай артефакты из памяти или резервной структуры.
 
@@ -71,13 +69,13 @@ metadata:
 
 - Каждая задача занимает примерно 15–60 минут работы.
 - Каждая задача имеет уникальный монотонный `id`: `T001`, `T002`, ... без пропусков.
-- Каждая задача имеет `title`, `details`, `status`, `priority`, `refs`, `dependsOn`, `parallel`, `confirmationRequired`, `files`, `checks`, `verification`.
+- Каждая задача имеет `title`, `details`, `status`, `priority`, `refs`, `dependsOn`, `parallel`, `confirmation`, `files`, `checks`, `verification`.
 - `details` содержит достаточно контекста для реализации, но не превращает задачу в длинную инструкцию уровня “открыть файл”.
 - `status` при создании обычно `pending`. Допустимые статусы: `pending`, `in_progress`, `done`, `blocked`, `skipped`.
 - Обязательные/P0 требования идут раньше optional/P1/P2.
 - Тестовые задачи ставь рядом с кодом, который они проверяют, а не только в конце.
 - Не создавай задачи на файлы из `Forbidden`.
-- Если задача требует `Requires confirmation`, выставь `confirmationRequired: true` и заполни `confirmation` строкой с тем, что нужно подтвердить.
+- Если задача требует `Requires confirmation`, выставь `confirmation.required: true`, `confirmation.status: "pending"` и заполни `confirmation.request` тем, что нужно подтвердить.
 - Если задачу можно делать параллельно после выполнения зависимостей, выставь `parallel: true`.
 - Не добавляй задачи, которых нет в `plan.md`, если это не явно нужная проверка или подготовка.
 - Финальная задача обязательно включает запуск проверок, запись результата в `verification.md` и проверку выхода за границы из `scope.md`.
@@ -94,8 +92,13 @@ metadata:
   "refs": ["US-1"],
   "dependsOn": [],
   "parallel": false,
-  "confirmationRequired": false,
-  "confirmation": null,
+  "confirmation": {
+    "required": false,
+    "status": "not_required",
+    "request": null,
+    "evidence": "",
+    "updatedAt": null
+  },
   "files": {
     "read": [],
     "edit": ["path/to/file"],
@@ -121,7 +124,7 @@ metadata:
 
 ### 6. Создай `tasks.json`
 
-Используй `template/TASKS-TEMPLATE.json` как единственный источник структуры `tasks.json`.
+Используй `assets/TASKS-TEMPLATE.json` как единственный источник структуры `tasks.json`.
 
 Правила заполнения:
 
@@ -130,13 +133,14 @@ metadata:
 - Удали placeholders или замени их реальными значениями.
 - `research` и `dataModel` ставь `null`, если файлов нет.
 - `execution.order` должен отражать последовательность задач.
+- `execution.firstTask` должен совпадать с первым ID в `execution.order`; scanner использует этот порядок, а не физический порядок выбора из JSON.
 - `coverage` должен показывать покрытие P0/обязательных требований задачами и проверками.
 - `summary` должен совпадать с фактическим количеством задач.
 - Если точный файл неизвестен, задача должна ссылаться на область поиска из `plan.md`, а не придумывать путь.
 
 ### 7. Создай `verification.md`
 
-Если `verification.md` отсутствует — создай его по `template/VERIFICATION-TEMPLATE.md`.
+Если `verification.md` отсутствует — создай его по `assets/VERIFICATION-TEMPLATE.md`.
 
 Если `verification.md` уже есть — не затирай существующие результаты; обнови только ссылки/заготовки, если это безопасно.
 
@@ -149,7 +153,7 @@ metadata:
 - [ ] Все planned files из `plan.md` покрыты задачами или явно не нужны.
 - [ ] Все P0/обязательные acceptance criteria покрыты задачами и проверками; если блокер остался, `tasks.json` не создан.
 - [ ] Нет задач на файлы из `Forbidden`.
-- [ ] Tasks, требующие `Requires confirmation`, имеют `confirmationRequired: true`.
+- [ ] Tasks, требующие `Requires confirmation`, имеют `confirmation.required: true`, непустой `request` и сохраняемый lifecycle status.
 - [ ] Есть финальная верификация и запись результата в `verification.md`.
 - [ ] Задачи достаточно маленькие для AI-исполнителя, но не превращены в шумные микрошаги.
 - [ ] `tasks.json` самодостаточен для `workflow-kit-implement`.
@@ -168,7 +172,7 @@ metadata:
 - всего задач;
 - сколько P0/обязательных задач;
 - сколько `parallel: true` задач;
-- есть ли `confirmationRequired: true` задачи и какие;
+- есть ли задачи с `confirmation.required: true`, их status и какие решения нужны;
 - рекомендуемую первую задачу;
 - готовность к `workflow-kit-implement`: да/нет;
 - если не готово к `workflow-kit-implement` — что нужно закрыть;

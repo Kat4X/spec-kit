@@ -1,10 +1,10 @@
 # Workflow Kit
 
-> Skills-first workflow для AI-агентов: фиксируем намерение, план, границы редактирования, машинно-читаемые задачи и проверку в файлах, без тяжёлого CLI на старте.
+> Skills-first workflow для AI-агентов: фиксируем намерение, план, границы редактирования, машинно-читаемые задачи и проверку в файлах, а компактный Rust CLI выдаёт агенту только следующую работу и связанный контекст.
 
 ## Статус
 
-Черновик для валидации. Установлен в `.agents/skills/` для локальной проверки.
+Черновик для валидации. Skills установлены в `.agents/skills/`, Rust CLI покрывает lifecycle workspace, task selection, context packet и безопасный claim.
 
 ## Зачем
 
@@ -21,7 +21,7 @@ Skill объясняет процесс, файлы хранят состоян�
 
 ## Принципы
 
-- **Skills-first, CLI-later** — сначала проверяем процесс как инструкции и Markdown-артефакты.
+- **Skills-first, CLI-assisted** — skills определяют процесс и владельцев артефактов, CLI детерминированно выполняет шаблонные операции и выбор очереди.
 - **Scope-first** — явный текущий scope, P0/P1/P2 где это полезно, жёсткий out-of-scope, никаких «заодно перепишем половину проекта».
 - **Small verified steps** — задачи маленькие, проверяемые, с явными файлами.
 - **Machine-readable task queue** — `tasks.json` хранит статусы, зависимости, checks, scope files и verification evidence без парсинга Markdown-чекбоксов.
@@ -70,7 +70,10 @@ docs/
   artifact-contracts.md    # контракт файлов
 
 scripts/
+  workflow-kit            # launcher Rust CLI + repository helpers
   check-consistency.sh     # sanity-check структуры, терминологии и шаблонов
+
+src/                      # Rust CLI: artifacts, scheduler, packet, claim
 
 .agents/skills/
   workflow-kit/
@@ -94,8 +97,50 @@ scripts/workflow-kit list --root .
 
 ```bash
 scripts/workflow-kit list --root . --json
+scripts/workflow-kit batch-queue <workspace> --root .
+```
+
+## Rust CLI для агента
+
+Первый build требует stable Rust; после этого launcher использует актуальный локальный binary и не требует Python для core-команд:
+
+```bash
+export PATH="/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:$PATH"
+rustup default stable
+cargo build --release
+```
+
+Минимальный agent flow:
+
+```bash
+WORKSPACE="$(scripts/workflow-kit create 'export tasks' --root .)"
+
+# Агент редактирует spec.md, затем запрашивает шаблоны следующей фазы.
+scripts/workflow-kit scaffold "$WORKSPACE" --phase plan --root . --json
+scripts/workflow-kit scaffold "$WORKSPACE" --phase tasks --root . --json
+
+# JSON packet: одна sequential task или ready parallel prefix + связанный context.
+scripts/workflow-kit packet "$WORKSPACE" --root . --json
+
+# revision берётся из packet; dry-run ничего не записывает.
+scripts/workflow-kit claim "$WORKSPACE" --revision 'fnv1a64:…' --dry-run --root . --json
+scripts/workflow-kit claim "$WORKSPACE" --revision 'fnv1a64:…' --root . --json
+
+scripts/workflow-kit validate "$WORKSPACE" --root . --json
+```
+
+`packet --task-id Txxx` выдаёт одну явно выбранную dependency-ready задачу. Без `--task-id` CLI возвращает одну непараллельную задачу либо непрерывный ready-набор `parallel: true` до первого последовательного/barrier состояния. Пакет содержит requirement/plan excerpts, scope, files, checks и `missingRefs`, но не весь `tasks.json` и не содержимое product source files.
+
+`claim` под блокировкой повторно проверяет revision и готовность unit, затем атомарно переводит выбранные задачи в `in_progress`. Stale packet завершается conflict без частичной записи; `--dry-run` возвращает предполагаемый результат без изменения workspace.
+
+Проверить структуру локальных Agent Skills:
+
+```bash
+scripts/workflow-kit validate-skills
+scripts/workflow-kit test
+scripts/check-consistency.sh
 ```
 
 ## Следующий шаг
 
-Проверить обновлённый workflow на нескольких изменениях разного размера: маленький локальный fix, feature с несколькими задачами и batch/YOLO-прогон до первого блокера.
+Проверить обновлённый workflow на реальных изменениях разного размера и собрать примеры экономии agent context относительно чтения полных артефактов.

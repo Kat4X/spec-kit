@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Kit"
+  short_description: "Полный цикл изменений через Workflow Kit"
+  default_prompt: "Используй $workflow-kit, чтобы провести изменение через полный проверяемый цикл."

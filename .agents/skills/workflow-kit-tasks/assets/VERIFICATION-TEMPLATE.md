@@ -11,36 +11,41 @@ Plan: [plan.md](plan.md)
 Tasks: [tasks.json](tasks.json)
 Scope: [scope.md](scope.md)
 
-## План проверок
+## Summary
+
+- Status: not started
+- Change: {краткое описание проверяемого результата}
+
+## Automated checks
 
 | Проверка | Команда / сценарий | Покрывает | Когда запускать |
 |---|---|---|---|
 | {проверка} | `{command}` | {US/Case/R/NFR} | {после Txxx / финально} |
 
-## Результаты выполнения
-
-<!-- Заполняется во время implement/verify. -->
-
 | Дата/время | Задача | Проверка | Результат | Заметки |
 |---|---|---|---|---|
 | {YYYY-MM-DD HH:MM} | `[Txxx]` | `{command}` | passed / failed / not run | {заметки} |
 
-## Ручные проверки
+## Manual checks
 
 - [ ] {сценарий и expected result}
 
-## Проверка границ scope.md
+## Coverage / gaps
+
+{Какие требования покрыты, что не проверено и почему.}
+
+## Scope check
 
 {Что проверено по `scope.md`: были ли выходы за Freely editable, Requires confirmation или Forbidden; какие подтверждения получены, если были нужны.}
 
-## Нерешённые проблемы
+## Known risks
 
 <!-- Если нет — оставь "- Нет." -->
 
 - [ ] {проблема, ссылка на задачу/проверку}
 
-## Итоговая готовность
+## Decision
 
-- Статус: {not started / in progress / passed / failed}
-- Готово к `workflow-kit-verify`: {да / нет}
+- Решение: {Ready / Ready with warnings / Blocked / Needs user decision / not evaluated}
 - Блокеры: {нет / список}
+- Следующий шаг: {что делать дальше}

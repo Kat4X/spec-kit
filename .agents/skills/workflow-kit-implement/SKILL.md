@@ -1,8 +1,6 @@
 ---
 name: workflow-kit-implement
-description: Реализация задач из tasks.json с учётом spec.md, plan.md и scope.md. По умолчанию выполняет одну следующую задачу; при явном yolo/batch-запросе может выполнять серию dependency-ready задач с батчингом проверок.
-metadata:
-  title: "Реализация задачи"
+description: "Используй когда пользователь просит реализовать следующую или конкретную задачу Workflow Kit из tasks.json. Читает spec.md/plan.md/scope.md, выполняет один dependency-ready task по умолчанию, обновляет tasks.json и verification.md; batch/yolo только по явному запросу."
 ---
 
 # Workflow Kit: implement
@@ -20,7 +18,7 @@ metadata:
 Режимы исполнения:
 
 - **Normal mode** — по умолчанию выполни одну маленькую задачу.
-- **Batch / YOLO mode** — только если пользователь явно просит `yolo mode`, `batch`, `продолжай в yolo`, `делай все готовые задачи` или аналогично: выполняй цепочку dependency-ready задач до первого блокера.
+- **Batch / YOLO mode** — только по явному запросу; перед работой прочитай `references/batch-mode.md`.
 
 Цель: сохранить соответствие `spec.md`/`plan.md`, обновить фактические статусы задач и записать проверки в `verification.md` без лишнего микрошума.
 
@@ -54,11 +52,7 @@ scripts/workflow-kit next-task <workspace> --root .
 scripts/workflow-kit next-task <workspace> --task-id Txxx --root .
 ```
 
-Для batch/yolo сначала получи компактную очередь, затем подгружай задачи по одной через `next-task --task-id`:
-
-```bash
-scripts/workflow-kit list --json --status READY --root .
-```
+Для batch/yolo используй очередь и правила из `references/batch-mode.md`.
 
 Прочитай:
 
@@ -78,19 +72,20 @@ scripts/workflow-kit list --json --status READY --root .
 
 - Если указан `Txxx` — используй `scripts/workflow-kit next-task <workspace> --task-id Txxx` и работай только с задачей с таким `id`.
 - Если `task-id` не указан и batch/yolo не запрошен — используй `scripts/workflow-kit next-task <workspace>` и работай с возвращённой задачей.
-- Если явно запрошен batch/yolo — построй очередь из `pending` задач, которые dependency-ready и не требуют подтверждения; выполняй их по `execution.order` / `dependsOn`, пока не встретишь блокер.
-- Проверь `dependsOn`, `confirmationRequired`, `confirmation`, `refs`, `files` и `checks` выбранной задачи или всех задач batch-очереди.
-- Зависимость считается выполненной только если зависимая задача имеет `status: "done"` или обоснованный `status: "skipped"`; внутри batch зависимость может считаться выполненной после успешной реализации и проверки предыдущей задачи из той же очереди.
+- Если явно запрошен batch/yolo — работай по `references/batch-mode.md`.
+- Проверь `dependsOn`, `confirmation`, `refs`, `files` и `checks` выбранной задачи или всех задач batch-очереди. Для schema v1 прочитай legacy-поля `confirmationRequired`/`confirmation`.
 
 Остановись до правок, если:
 
 - зависимость явно не выполнена и не будет выполнена ранее в той же batch-очереди;
 - задача требует продуктового решения;
-- `confirmationRequired: true`, а подтверждения ещё нет;
+- `confirmation.required: true`, а `confirmation.status` не равен `approved`;
 - задача требует файл из `Forbidden`;
 - задача слишком крупная для одного прохода и требует декомпозиции.
 
-В batch/yolo режиме не перескакивай через блокер к более поздним задачам, если это может исказить dependency chain или скрыть риск. Безопасные независимые задачи можно продолжать только если их `dependsOn` чистые и scope очевиден.
+В batch/yolo режиме не перескакивай через блокер; детали — в `references/batch-mode.md`.
+
+Если пользователь явно подтвердил задачу schema v2, до реализации обнови её `confirmation.status` на `approved`, запиши краткое `evidence` и `updatedAt`. При отказе выставь `rejected`. Не считай память чата достаточным долговременным подтверждением. Для legacy schema v1 сначала мигрируй весь `tasks.json` на schema v2, сохранив смысл задач и подтверждений.
 
 ### 4. Проверь границы `scope.md`
 
@@ -127,16 +122,7 @@ scripts/workflow-kit list --json --status READY --root .
 - `verification.md` — добавь фактический результат проверки;
 - `tasks.json` — добавь fix task только если обнаружен баг реализации, который не был покрыт задачами, и это безопаснее, чем править сразу.
 
-#### Batch artifact policy
-
-В batch/yolo режиме можно батчить workflow updates:
-
-- держи короткий verification ledger в памяти/черновых заметках во время выполнения;
-- обновляй `tasks.json` и `verification.md` на checkpoint-ах, а не после каждого микрошага;
-- checkpoint обязателен после группы связанных задач, перед рискованным переходом и в конце batch;
-- после batched update один раз проверь `tasks.json` (`jq empty` или эквивалент);
-- не запускай дублирующие проверки, если более поздняя/широкая команда строго покрывает предыдущую; в evidence явно пиши, чем покрыто;
-- не ставь `done` задачам, чьи required checks ещё не прошли и не покрыты covering-check.
+Batch artifact policy описана в `references/batch-mode.md`.
 
 Implementation fix в MVP фиксируй как задачу в `tasks.json` и evidence в `verification.md`, а не отдельным файлом.
 
@@ -167,7 +153,7 @@ Implementation fix в MVP фиксируй как задачу в `tasks.json` �
 - задача слишком крупная и требует декомпозиции;
 - требуется изменить `spec.md` или `plan.md`.
 
-В batch/yolo режиме при остановке также укажи, какие задачи успели завершиться, какие проверки покрывают их `done`, и какая следующая pending-задача заблокирована.
+В batch/yolo режиме при остановке используй stop output из `references/batch-mode.md`.
 
 ### 9. Git и `.gitignore`
 
@@ -198,22 +184,7 @@ Workflow artifacts:
 Следующая: [T006] ...
 ```
 
-Для batch/yolo результата сгруппируй задачи и проверки:
-
-```text
-Batch завершён: T002–T006 (`status: done`)
-
-Проверки:
-  ./gradlew :app:assembleDebug --quiet — passed (covers T003–T006)
-  ./gradlew :app:testDevDebugUnitTest :app:testProdDebugUnitTest --quiet — passed (covers T002)
-
-Workflow artifacts:
-  tasks.json updated once after batch
-  verification.md updated once after batch
-
-Прогресс: 6/8 done
-Следующая: [T007] ...
-```
+Для batch/yolo результата используй формат из `references/batch-mode.md`.
 
 Если проверка не запускалась:
 

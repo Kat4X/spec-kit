@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "change": "{Change Name}",
   "spec": "spec.md",
   "plan": "plan.md",
@@ -17,8 +17,13 @@
       "refs": ["{US-1/Case-1/R-001/NFR-001}"],
       "dependsOn": [],
       "parallel": false,
-      "confirmationRequired": false,
-      "confirmation": null,
+      "confirmation": {
+        "required": false,
+        "status": "not_required",
+        "request": null,
+        "evidence": "",
+        "updatedAt": null
+      },
       "files": {
         "read": [],
         "edit": ["{path/to/file}"],
@@ -49,8 +54,13 @@
       "refs": ["verification"],
       "dependsOn": ["T001"],
       "parallel": false,
-      "confirmationRequired": false,
-      "confirmation": null,
+      "confirmation": {
+        "required": false,
+        "status": "not_required",
+        "request": null,
+        "evidence": "",
+        "updatedAt": null
+      },
       "files": {
         "read": ["spec.md", "plan.md", "scope.md", "tasks.json"],
         "edit": ["verification.md", "tasks.json"],

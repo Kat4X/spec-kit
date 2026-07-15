@@ -1,8 +1,6 @@
 ---
 name: workflow-kit-plan
-description: Создание self-contained plan.md для одного atomic change по готовому spec.md. Используй после workflow-kit-specify, когда нужен технический дизайн перед workflow-kit-tasks.
-metadata:
-  title: "Технический план"
+description: "Используй когда по готовому Workflow Kit spec.md нужен технический plan.md и scope.md: определить HOW, затронутые файлы, риски, исследования и проверки перед разбиением на tasks.json. Не использовать до готовой спецификации."
 ---
 
 # Workflow Kit: plan
@@ -30,13 +28,13 @@ metadata:
 
 Перед созданием файлов проверь доступность обязательных шаблонов:
 
-- `template/PLAN-TEMPLATE.md` — для `plan.md`;
-- `template/SCOPE-TEMPLATE.md` — для `scope.md`.
+- `assets/PLAN-TEMPLATE.md` — для `plan.md`;
+- `assets/SCOPE-TEMPLATE.md` — для `scope.md`.
 
 Опциональные шаблоны используй только если соответствующий артефакт нужен:
 
-- `template/RESEARCH-TEMPLATE.md` — для `research.md`;
-- `template/DATA-MODEL-TEMPLATE.md` — для `data-model.md`.
+- `assets/RESEARCH-TEMPLATE.md` — для `research.md`;
+- `assets/DATA-MODEL-TEMPLATE.md` — для `data-model.md`.
 
 Если нужный шаблон недоступен — остановись и сообщи, какой шаблон отсутствует. Не создавай артефакты из памяти или резервной структуры.
 
@@ -59,7 +57,7 @@ metadata:
 
 Для каждого вопроса:
 
-- если ответ можно найти в коде, документации или существующих паттернах — исследуй и зафиксируй ответ в `research.md` по `template/RESEARCH-TEMPLATE.md`;
+- если ответ можно найти в коде, документации или существующих паттернах — исследуй и зафиксируй ответ в `research.md` по `assets/RESEARCH-TEMPLATE.md`;
 - если вопрос продуктовый, рискованный или требует решения пользователя — остановись и спроси пользователя до создания `plan.md`;
 - если вопрос не блокирует plan — зафиксируй безопасное техническое предположение в `research.md` или `plan.md`.
 
@@ -93,7 +91,7 @@ metadata:
 
 Если `scope.md` уже есть — обнови его, если план меняет границы редактирования или выявляет новые public/shared surfaces.
 
-Если `scope.md` нет — создай его по `template/SCOPE-TEMPLATE.md` как единственному источнику структуры.
+Если `scope.md` нет — создай его по `assets/SCOPE-TEMPLATE.md` как единственному источнику структуры.
 
 Для маленького локального change делай `scope.md` коротким, но не пропускай его: укажи конкретные freely editable файлы/пути, ожидаемые requires confirmation поверхности и явное правило для неуказанных файлов.
 
@@ -107,13 +105,13 @@ metadata:
 - external contract shape;
 - state model, который важен для реализации и тестов.
 
-Используй `template/DATA-MODEL-TEMPLATE.md` как единственный источник структуры.
+Используй `assets/DATA-MODEL-TEMPLATE.md` как единственный источник структуры.
 
 Если data model не меняется — не создавай `data-model.md`; укажи в `plan.md`, что отдельная модель данных не требуется.
 
 ### 8. Создай `plan.md`
 
-Используй `template/PLAN-TEMPLATE.md` как единственный источник структуры `plan.md`.
+Используй `assets/PLAN-TEMPLATE.md` как единственный источник структуры `plan.md`.
 
 Правила заполнения:
 

@@ -1,8 +1,6 @@
 ---
 name: workflow-kit-list
-description: "Показ доступных к реализации Workflow Kit specs/workspaces по ai/specs/*: READY/BLOCKED/DONE/LEGACY/BROKEN, выбор следующей pending task из tasks.json. Используй когда спрашивают что можно реализовать, какие спеки доступны, что следующее в workflow-kit."
-metadata:
-  title: "Список доступных specs"
+description: "Используй когда пользователь спрашивает, какие Workflow Kit specs/workspaces доступны, что READY/BLOCKED/DONE, что можно реализовать дальше или какую pending task выбрать из tasks.json. Показывает список ai/specs/* и следующий dependency-ready task."
 ---
 
 # Workflow Kit: list
@@ -57,6 +55,12 @@ scripts/workflow-kit next-task ai/specs/2026.06.08_17:45_ui-review-fixes --task-
 scripts/workflow-kit next-task
 ```
 
+Детерминированная очередь для batch/yolo с учётом `execution.order`, зависимостей и подтверждений:
+
+```bash
+scripts/workflow-kit batch-queue ai/specs/2026.06.08_17:45_ui-review-fixes
+```
+
 Только конкретные статусы:
 
 ```bash
@@ -65,13 +69,13 @@ scripts/workflow-kit list --status READY --status BLOCKED
 
 ## Статусы workspace
 
-- `READY` — есть хотя бы одна `pending` task, у которой все `dependsOn` имеют статус `done`/`skipped`, и `confirmationRequired: false`.
-- `BLOCKED` — незавершённые задачи есть, но runnable pending tasks нет: зависимости не закрыты, требуется подтверждение, задача `blocked`/`in_progress` или статус нераспознан.
+- `READY` — есть хотя бы одна `pending` task с закрытыми `dependsOn`, для которой подтверждение не требуется или `confirmation.status: "approved"`.
+- `BLOCKED` — незавершённые задачи есть, но runnable pending tasks нет: зависимости не закрыты, требуется подтверждение или задача имеет `blocked`/`in_progress`.
 - `DONE` — все задачи имеют статус `done` или `skipped`.
 - `NEEDS_PLAN` — есть `spec.md`, но не хватает `plan.md` и/или `scope.md` до этапа tasks.
 - `NEEDS_TASKS` — есть `spec.md`, `plan.md`, `scope.md`, но нет `tasks.json`.
 - `LEGACY` — найден старый `tasks.md`, но нет `tasks.json`; такой workspace нельзя честно отдавать в `workflow-kit-implement` без миграции.
-- `BROKEN` — битый `tasks.json`, отсутствуют обязательные файлы при наличии `tasks.json`, нет `spec.md`, или структура задач невалидна.
+- `BROKEN` — битый `tasks.json`, отсутствуют обязательные файлы при наличии `tasks.json`, нет `spec.md`, или строгая schema v1/v2 задач невалидна.
 
 ## Как отвечать пользователю
 
@@ -97,5 +101,5 @@ READY
 
 - Не выбирай workspace автоматически, если READY несколько — попроси выбор.
 - Не считай `tasks.md` готовым к реализации. Это legacy-формат.
-- Не ставь задачу runnable, если есть незакрытая зависимость или `confirmationRequired: true`.
+- Не ставь задачу runnable, если есть незакрытая зависимость или обязательное подтверждение не имеет status `approved`.
 - Не меняй workflow artifacts во время list. Это read-only этап.

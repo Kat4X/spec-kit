@@ -1,0 +1,57 @@
+[
+  {
+    "query": "Создай spec для экспорта задач в CSV",
+    "should_trigger": true,
+    "skill": "workflow-kit-specify"
+  },
+  {
+    "query": "Нужно спланировать реализацию по ai/specs/2026.07.09_10:00_export-tasks/spec.md",
+    "should_trigger": true,
+    "skill": "workflow-kit-plan"
+  },
+  {
+    "query": "Разбей готовый plan.md на tasks.json",
+    "should_trigger": true,
+    "skill": "workflow-kit-tasks"
+  },
+  {
+    "query": "Реализуй следующую задачу workflow-kit для export-tasks",
+    "should_trigger": true,
+    "skill": "workflow-kit-implement"
+  },
+  {
+    "query": "Проверь change перед закрытием, все ли задачи и verification сходятся",
+    "should_trigger": true,
+    "skill": "workflow-kit-verify"
+  },
+  {
+    "query": "Что у нас сейчас готово к реализации в ai/specs?",
+    "should_trigger": true,
+    "skill": "workflow-kit-list"
+  },
+  {
+    "query": "Проведи новый change целиком через specify, plan, tasks, implement и verify",
+    "should_trigger": true,
+    "skill": "workflow-kit"
+  },
+  {
+    "query": "Напиши функцию форматирования даты без workflow artifacts",
+    "should_trigger": false,
+    "skill": null
+  },
+  {
+    "query": "Сделай code review последнего diff на баги",
+    "should_trigger": false,
+    "skill": null
+  },
+  {
+    "query": "Объясни, что такое YAML frontmatter в Markdown",
+    "should_trigger": false,
+    "skill": null
+  },
+  {
+    "query": "Добавь тест для calculator-core.mjs прямо сейчас, без spec процесса",
+    "should_trigger": false,
+    "skill": null
+  }
+]

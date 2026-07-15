@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Kit: список"
+  short_description: "Показывает workspaces и готовые задачи"
+  default_prompt: "Используй $workflow-kit-list, чтобы показать доступные workspaces и следующие задачи."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Kit: план"
+  short_description: "Создаёт технический план и scope"
+  default_prompt: "Используй $workflow-kit-plan, чтобы подготовить технический plan.md и scope.md по готовой spec."
