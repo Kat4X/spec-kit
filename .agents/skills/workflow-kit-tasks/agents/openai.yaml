@@ -1,4 +1,0 @@
-interface:
-  display_name: "Workflow Kit: задачи"
-  short_description: "Создаёт проверяемую очередь tasks.json"
-  default_prompt: "Используй $workflow-kit-tasks, чтобы разбить готовый план на dependency-ready задачи."

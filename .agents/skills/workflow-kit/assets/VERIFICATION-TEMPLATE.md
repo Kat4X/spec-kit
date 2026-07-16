@@ -1,7 +1,7 @@
 # Verification: {Change Name}
 
 <!--
-Verification ведётся во время workflow-kit-implement и workflow-kit-verify.
+Verification ведётся во время workflow-kit implement и workflow-kit verify.
 Tasks создаёт заготовку; implement/verify записывают фактические результаты.
 Перед финалом удали HTML comments и placeholders.
 -->

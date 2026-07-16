@@ -47,12 +47,12 @@ for path in \
   templates \
   skill-drafts \
   docs/workflow-spec.md \
-  .agents/skills/workflow-kit-list/workflow_list_specs.py \
-  .agents/skills/workflow-kit-specify/create_workspace.py \
-  .agents/skills/workflow-kit-specify/template \
-  .agents/skills/workflow-kit-plan/template \
-  .agents/skills/workflow-kit-tasks/template \
-  .agents/skills/workflow-kit-verify/assets; do
+  .agents/skills/workflow-kit-list \
+  .agents/skills/workflow-kit-specify \
+  .agents/skills/workflow-kit-plan \
+  .agents/skills/workflow-kit-tasks \
+  .agents/skills/workflow-kit-implement \
+  .agents/skills/workflow-kit-verify; do
   if [[ -e "$path" ]]; then
     echo "FAIL: stale path exists: $path"
     fail=1
@@ -62,39 +62,31 @@ done
 for path in \
   scripts/workflow-kit \
   .agents/skills/workflow-kit/SKILL.md \
-  .agents/skills/workflow-kit-list/SKILL.md \
+  .agents/skills/workflow-kit/agents/openai.yaml \
   .agents/skills/workflow-kit/scripts/validate_skills.py \
+  .agents/skills/workflow-kit/scripts/workflow_list_specs.py \
+  .agents/skills/workflow-kit/scripts/create_workspace.py \
+  .agents/skills/workflow-kit/references/list.md \
+  .agents/skills/workflow-kit/references/specify.md \
+  .agents/skills/workflow-kit/references/plan.md \
+  .agents/skills/workflow-kit/references/tasks.md \
+  .agents/skills/workflow-kit/references/implement.md \
+  .agents/skills/workflow-kit/references/verify.md \
+  .agents/skills/workflow-kit/references/batch-mode.md \
   .agents/skills/workflow-kit/references/trigger-evals.json \
-  .agents/skills/workflow-kit-list/scripts/workflow_list_specs.py \
-  .agents/skills/workflow-kit-specify/SKILL.md \
-  .agents/skills/workflow-kit-specify/scripts/create_workspace.py \
-  .agents/skills/workflow-kit-specify/assets/SPEC-TEMPLATE.md \
-  .agents/skills/workflow-kit-plan/SKILL.md \
-  .agents/skills/workflow-kit-plan/assets/PLAN-TEMPLATE.md \
-  .agents/skills/workflow-kit-plan/assets/RESEARCH-TEMPLATE.md \
-  .agents/skills/workflow-kit-plan/assets/DATA-MODEL-TEMPLATE.md \
-  .agents/skills/workflow-kit-plan/assets/SCOPE-TEMPLATE.md \
-  .agents/skills/workflow-kit-tasks/SKILL.md \
-  .agents/skills/workflow-kit-tasks/assets/TASKS-TEMPLATE.json \
-  .agents/skills/workflow-kit-tasks/assets/VERIFICATION-TEMPLATE.md \
-  .agents/skills/workflow-kit-implement/SKILL.md \
-  .agents/skills/workflow-kit-implement/references/batch-mode.md \
-  .agents/skills/workflow-kit-verify/SKILL.md \
+  .agents/skills/workflow-kit/assets/SPEC-TEMPLATE.md \
+  .agents/skills/workflow-kit/assets/PLAN-TEMPLATE.md \
+  .agents/skills/workflow-kit/assets/RESEARCH-TEMPLATE.md \
+  .agents/skills/workflow-kit/assets/DATA-MODEL-TEMPLATE.md \
+  .agents/skills/workflow-kit/assets/SCOPE-TEMPLATE.md \
+  .agents/skills/workflow-kit/assets/TASKS-TEMPLATE.json \
+  .agents/skills/workflow-kit/assets/VERIFICATION-TEMPLATE.md \
   tests/test_workflow_kit.py; do
   check_exists "$path"
 done
 
-for skill in workflow-kit workflow-kit-list workflow-kit-specify workflow-kit-plan workflow-kit-tasks workflow-kit-implement workflow-kit-verify; do
-  check_exists ".agents/skills/$skill/agents/openai.yaml"
-done
-
-if [[ -f '.agents/skills/workflow-kit-specify/specify-skill.md' ]]; then
-  echo 'FAIL: stale duplicate skill file exists: .agents/skills/workflow-kit-specify/specify-skill.md'
-  fail=1
-fi
-
-if ! python3 -m json.tool .agents/skills/workflow-kit-tasks/assets/TASKS-TEMPLATE.json >/dev/null; then
-  echo 'FAIL: .agents/skills/workflow-kit-tasks/assets/TASKS-TEMPLATE.json is not valid JSON'
+if ! python3 -m json.tool .agents/skills/workflow-kit/assets/TASKS-TEMPLATE.json >/dev/null; then
+  echo 'FAIL: .agents/skills/workflow-kit/assets/TASKS-TEMPLATE.json is not valid JSON'
   fail=1
 fi
 

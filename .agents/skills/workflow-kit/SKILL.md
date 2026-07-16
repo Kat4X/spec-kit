@@ -1,66 +1,95 @@
 ---
 name: workflow-kit
-description: "Используй для оркестрации полного цикла изменения через Workflow Kit или объяснения порядка specify → plan → tasks → implement → verify. Для одного конкретного этапа используй соответствующий специализированный skill."
+description: "Используй для любого действия Workflow Kit: создать или уточнить spec, построить plan/scope, создать tasks.json, реализовать следующую задачу, проверить change, показать workspaces или продолжить полный цикл. Skill определяет текущую фазу по артефактам workspace и выполняет только допустимый переход state machine."
 ---
 
 # Workflow Kit
 
-Работай через артефакты, а не через память чата.
+Работай через артефакты workspace, а не через память чата. Это единственная публичная точка входа; фазовые инструкции загружай из `references/` только после определения состояния и действия.
 
-## Цикл
-
-```text
-specify → plan → tasks → implement → verify
-```
-
-## Change workspace
-
-По умолчанию:
+## State machine
 
 ```text
-ai/specs/YYYY.MM.DD_HH:MM_change-name/
+NO_WORKSPACE → SPECIFY → PLAN → TASKS → IMPLEMENT → VERIFY → COMPLETE
+                                      ↕
+                                   BLOCKED
+
+Любая фаза → BROKEN / NEEDS_USER_DECISION
 ```
 
-Файлы:
+Состояние не хранится отдельно. Выводи его из файлов workspace и их содержимого:
 
-```text
-spec.md
-research.md           # optional
-plan.md
-data-model.md         # optional
-scope.md
-tasks.json
-verification.md
+| Наблюдаемое состояние | Фаза | Допустимое следующее действие |
+|---|---|---|
+| Workspace не выбран или не существует | `NO_WORKSPACE` | `specify` |
+| Есть `spec.md`, но guard спецификации не пройден | `SPECIFY` | закончить spec |
+| CLI: `NEEDS_PLAN`, guard спецификации пройден | `PLAN` | создать/закончить `plan.md` и `scope.md` |
+| CLI: `NEEDS_TASKS` | `TASKS` | создать `tasks.json` и `verification.md` |
+| CLI: `READY` | `IMPLEMENT` | выполнить одну execution unit |
+| CLI: `BLOCKED` | `BLOCKED` | закрыть confirmation/dependency/error; не перескакивать блокер |
+| CLI: `DONE`, но Decision в `verification.md` не Ready | `VERIFY` | финальная проверка |
+| CLI: `DONE` и Decision равен Ready / Ready with warnings | `COMPLETE` | только отчёт или новый change |
+| CLI: `LEGACY` / `BROKEN` | `BROKEN` | миграция или исправление контракта |
+
+Для существующего workspace сначала запусти:
+
+```bash
+scripts/workflow-kit validate <workspace> --root . --json
 ```
 
-## Execution modes
+Для списка или выбора workspace:
 
-- **Normal mode**: implement выполняет одну следующую задачу и сразу фиксирует её проверки.
-- **Batch / YOLO mode**: только по явному запросу пользователя implement может выполнять серию dependency-ready задач до первого блокера, батчить обновление `tasks.json`/`verification.md` и использовать consolidated checks вместо дублирующих проверок.
-- В любом режиме Forbidden, неподтверждённые Requires confirmation, failing required checks, schema/config/shared-surface risk и продуктовые вопросы остаются stop conditions.
+```bash
+scripts/workflow-kit list --root . --json
+```
 
-## Правила
+`validate/list` дают структурный статус, но переход всё равно обязан проверить фазовый guard ниже.
 
-- Сначала понять WHAT/WHY, потом HOW, потом code.
-- `spec.md` не должен содержать детали реализации: файлы, классы, функции, архитектурные решения, библиотеки и пошаговый HOW.
-- `scope.md` обязателен до tasks/implement; для маленьких atomic changes он может быть коротким, но границы редактирования должны быть явными.
-- Неясности помечай `ТРЕБУЕТ УТОЧНЕНИЯ`.
+## Guards переходов
+
+- `SPECIFY → PLAN`: spec самодостаточна, описывает WHAT/WHY, не содержит блокирующих `ТРЕБУЕТ УТОЧНЕНИЯ`.
+- `PLAN → TASKS`: существуют готовые `plan.md` и `scope.md`; продуктовые вопросы закрыты.
+- `TASKS → IMPLEMENT`: `tasks.json` schema-valid, обязательные требования покрыты, `verification.md` существует.
+- `IMPLEMENT → VERIFY`: все обязательные tasks имеют `done` или обоснованный `skipped`; required checks не падают.
+- `VERIFY → COMPLETE`: P0 выполнено, scope чист, итоговое решение записано в `verification.md`.
+- Любой рискованный продуктовый вопрос, неподтверждённый shared/public surface, Forbidden file или failing required check переводит работу в `BLOCKED`/`NEEDS_USER_DECISION`.
+
+Не создавай отдельный state-файл: он неизбежно разойдётся с артефактами.
+
+## Маршрутизация
+
+Определи намерение пользователя и загрузи ровно одну основную инструкцию:
+
+| Намерение / действие | Инструкция |
+|---|---|
+| показать workspaces, статус, следующую task | `references/list.md` |
+| создать/уточнить spec | `references/specify.md` |
+| создать plan/scope/research/data model | `references/plan.md` |
+| создать tasks.json/verification.md | `references/tasks.md` |
+| реализовать task, продолжить работу | `references/implement.md` |
+| финально проверить/закрыть change | `references/verify.md` |
+
+Если пользователь говорит «продолжай», выбери инструкцию по текущему состоянию. Если явно просит недопустимую фазу, остановись и назови отсутствующий guard/артефакт.
+
+Полный цикл выполняй только по явному запросу. После каждой фазы заново вычисляй состояние; не считай успешное действие доказательством допустимости следующего перехода.
+
+## Общие правила
+
+- Цикл: `specify → plan → tasks → implement → verify`.
+- `spec.md` отвечает на WHAT/WHY; `plan.md` — на HOW; `tasks.json` — очередь исполнения.
+- `scope.md` обязателен перед tasks/implement.
+- Normal mode реализует одну execution unit; batch/YOLO — только по явному запросу и `references/batch-mode.md`.
 - Не меняй файлы вне `scope.md` без подтверждения.
-- Не ставь задаче `status: "done"` в `tasks.json`, если проверка не прошла или не объяснено, почему её нельзя запустить.
-- Если spec неверна — останови текущую фазу и верни change в `workflow-kit-specify`; не переписывай spec из plan/tasks/implement/verify.
-- Если spec верна, но код ошибся — создай implementation fix task/note.
+- Не ставь task `done`, если required check не прошёл или невозможность проверки не записана.
+- Ошибка требований возвращает в specify; ошибка подхода — в plan; ошибка декомпозиции — в tasks; ошибка кода — implementation fix.
+- Артефакты workspace в `ai/specs/**` остаются локальными: не добавляй их в git и не используй `git add -f`.
+- Commit создавай только в IMPLEMENT после успешно проверенной execution unit; в batch/yolo — один commit на успешно проверенный batch. В commit включай только implementation-файлы, изменённые по текущей spec, и не захватывай чужие или ранее существовавшие изменения.
+- Push не выполняй автоматически. После `COMPLETE` спроси разрешение на push текущей ветки и выполняй его только после подтверждения.
 
-## Skill quality
+## Проверки самого kit
 
-- Проверяй frontmatter локальных skills: `scripts/workflow-kit validate-skills`.
-- Запускай поведенческие проверки CLI/contracts: `scripts/workflow-kit test`.
-- Trigger evals лежат в `references/trigger-evals.json`; используй их при изменении `description`.
-
-## Связанные skills
-
-- `workflow-kit-list`
-- `workflow-kit-specify`
-- `workflow-kit-plan`
-- `workflow-kit-tasks`
-- `workflow-kit-implement`
-- `workflow-kit-verify`
+```bash
+scripts/workflow-kit validate-skills
+scripts/workflow-kit test
+scripts/check-consistency.sh
+```

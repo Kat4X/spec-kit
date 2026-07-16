@@ -17,11 +17,11 @@ def load_module(name: str, relative_path: str):
 
 scanner = load_module(
     "workflow_list_specs",
-    ".agents/skills/workflow-kit-list/scripts/workflow_list_specs.py",
+    ".agents/skills/workflow-kit/scripts/workflow_list_specs.py",
 )
 creator = load_module(
     "create_workspace",
-    ".agents/skills/workflow-kit-specify/scripts/create_workspace.py",
+    ".agents/skills/workflow-kit/scripts/create_workspace.py",
 )
 skill_validator = load_module(
     "validate_skills",
@@ -127,20 +127,11 @@ class SkillFrontmatterTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "quote the value"):
                 skill_validator.frontmatter(path)
 
-    def test_trigger_eval_matrix_covers_specialized_skills(self):
+    def test_trigger_eval_matrix_routes_all_phases_to_one_skill(self):
         path = ROOT / ".agents/skills/workflow-kit/references/trigger-evals.json"
         cases = json.loads(path.read_text(encoding="utf-8"))
-        expected = {
-            "workflow-kit",
-            "workflow-kit-list",
-            "workflow-kit-specify",
-            "workflow-kit-plan",
-            "workflow-kit-tasks",
-            "workflow-kit-implement",
-            "workflow-kit-verify",
-        }
         positive = {case["skill"] for case in cases if case["should_trigger"] is True}
-        self.assertEqual(expected, positive)
+        self.assertEqual({"workflow-kit"}, positive)
         self.assertTrue(any(case["should_trigger"] is False and case["skill"] is None for case in cases))
         for case in cases:
             self.assertIsInstance(case["query"], str)
@@ -155,7 +146,7 @@ class ScannerTests(unittest.TestCase):
         return scanner.evaluate_workspace(fixture.path)
 
     def test_shipped_tasks_template_matches_schema(self):
-        path = ROOT / ".agents/skills/workflow-kit-tasks/assets/TASKS-TEMPLATE.json"
+        path = ROOT / ".agents/skills/workflow-kit/assets/TASKS-TEMPLATE.json"
         data = json.loads(path.read_text(encoding="utf-8"))
         self.assertEqual([], scanner.validate_tasks_data(data))
 

@@ -515,7 +515,7 @@ def evaluate_workspace(workspace: Path) -> Dict[str, Any]:
     if ready_tasks:
         result["status"] = "READY"
         first_task = ready_tasks[0]
-        result["command"] = f"workflow-kit-implement {workspace.name} {first_task['id']}"
+        result["command"] = f"workflow-kit implement {workspace.name} {first_task['id']}"
     elif unfinished_count > 0:
         result["status"] = "BLOCKED"
     else:

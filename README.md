@@ -4,7 +4,7 @@
 
 ## Статус
 
-Черновик для валидации. Skills установлены в `.agents/skills/`, Rust CLI покрывает lifecycle workspace, task selection, context packet и безопасный claim.
+Черновик для валидации. Единый state-machine skill установлен в `.agents/skills/workflow-kit/`, Rust CLI покрывает lifecycle workspace, task selection, context packet и безопасный claim.
 
 ## Зачем
 
@@ -21,7 +21,7 @@ Skill объясняет процесс, файлы хранят состоян�
 
 ## Принципы
 
-- **Skills-first, CLI-assisted** — skills определяют процесс и владельцев артефактов, CLI детерминированно выполняет шаблонные операции и выбор очереди.
+- **State-machine skill, CLI-assisted** — один skill маршрутизирует фазы по состоянию артефактов, CLI детерминированно выполняет шаблонные операции и выбор очереди.
 - **Scope-first** — явный текущий scope, P0/P1/P2 где это полезно, жёсткий out-of-scope, никаких «заодно перепишем половину проекта».
 - **Small verified steps** — задачи маленькие, проверяемые, с явными файлами.
 - **Machine-readable task queue** — `tasks.json` хранит статусы, зависимости, checks, scope files и verification evidence без парсинга Markdown-чекбоксов.
@@ -77,12 +77,10 @@ src/                      # Rust CLI: artifacts, scheduler, packet, claim
 
 .agents/skills/
   workflow-kit/
-  workflow-kit-list/
-  workflow-kit-specify/
-  workflow-kit-plan/
-  workflow-kit-tasks/
-  workflow-kit-implement/
-  workflow-kit-verify/
+    SKILL.md              # state machine и единая точка входа
+    references/           # инструкции фаз, загружаемые по текущему состоянию
+    assets/               # шаблоны workflow artifacts
+    scripts/              # fallback helpers и skill validation
 ```
 
 ## Быстрый список workspaces

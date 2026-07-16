@@ -1,19 +1,14 @@
----
-name: workflow-kit-tasks
-description: "Используй когда по готовым spec.md, plan.md и scope.md нужно создать машинно-читаемый Workflow Kit tasks.json и verification.md: dependency-ready задачи, проверки, stop conditions и payload для workflow-kit-implement."
----
-
 # Workflow Kit: tasks
 
 Создай машинно-читаемые задачи реализации для изменения: `$ARGUMENTS`.
 
-Цель: создать валидный `tasks.json` schema v2 для следующего AI-этапа `workflow-kit-implement`. `tasks.json` — source of truth для очереди исполнения: маленькие задачи, зависимости, scope files, проверки, подтверждения и статус. Не пиши код на этапе tasks.
+Цель: создать валидный `tasks.json` schema v2 для следующего AI-этапа `workflow-kit implement`. `tasks.json` — source of truth для очереди исполнения: маленькие задачи, зависимости, scope files, проверки, подтверждения и статус. Не пиши код на этапе tasks.
 
 ## Порядок работы
 
 ### 1. Найди workspace
 
-Найди workspace, созданный `workflow-kit-specify` и заполненный `workflow-kit-plan`:
+Найди workspace, созданный `workflow-kit specify` и заполненный `workflow-kit plan`:
 
 - если `$ARGUMENTS` — путь к workspace, используй его;
 - если `$ARGUMENTS` — `change-name`, найди `ai/specs/*_{change-name}/`;
@@ -54,7 +49,7 @@ description: "Используй когда по готовым spec.md, plan.md
 
 Перед декомпозицией проверь:
 
-- `plan.md` помечен как готовый к `workflow-kit-tasks` или не содержит явных блокеров;
+- `plan.md` помечен как готовый к `workflow-kit tasks` или не содержит явных блокеров;
 - блокирующих `ТРЕБУЕТ УТОЧНЕНИЯ` из `spec.md`/`plan.md` не осталось; продуктовые/рискованные вопросы нужно вернуть пользователю до создания `tasks.json`;
 - `scope.md` существует и соответствует файлам/поверхностям из `plan.md`;
 - задачи не требуют файлов из `Forbidden`.
@@ -156,11 +151,11 @@ description: "Используй когда по готовым spec.md, plan.md
 - [ ] Tasks, требующие `Requires confirmation`, имеют `confirmation.required: true`, непустой `request` и сохраняемый lifecycle status.
 - [ ] Есть финальная верификация и запись результата в `verification.md`.
 - [ ] Задачи достаточно маленькие для AI-исполнителя, но не превращены в шумные микрошаги.
-- [ ] `tasks.json` самодостаточен для `workflow-kit-implement`.
+- [ ] `tasks.json` самодостаточен для `workflow-kit implement`.
 
-### 9. Git и `.gitignore`
+### 9. Git
 
-Не выполняй `git add`, commit или push без явного запроса. Если пользователь попросил commit/stage — сначала проверь `git status --short --ignored` или `git check-ignore -v -- <path>` и не добавляй ignored-файлы без явного разрешения.
+`tasks.json` и `verification.md` — локальные workflow artifacts. Не добавляй их в git, не создавай commit и не используй `git add -f`. Push на этом этапе не выполняй.
 
 ### 10. Результат
 
@@ -174,9 +169,9 @@ description: "Используй когда по готовым spec.md, plan.md
 - сколько `parallel: true` задач;
 - есть ли задачи с `confirmation.required: true`, их status и какие решения нужны;
 - рекомендуемую первую задачу;
-- готовность к `workflow-kit-implement`: да/нет;
-- если не готово к `workflow-kit-implement` — что нужно закрыть;
-- статус git/commit или причину, почему артефакты не добавлены.
+- готовность к `workflow-kit implement`: да/нет;
+- если не готово к `workflow-kit implement` — что нужно закрыть;
+- что workflow artifacts оставлены локально и не добавлены в git.
 
 Если остановилась до создания `tasks.json`, в финале покажи:
 

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Workflow Kit: проверка"
-  short_description: "Проверяет реализацию перед закрытием"
-  default_prompt: "Используй $workflow-kit-verify, чтобы сверить реализацию с артефактами и проверками."

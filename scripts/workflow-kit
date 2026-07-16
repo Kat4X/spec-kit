@@ -32,16 +32,16 @@ fi
 run_legacy_fallback() {
   case "$cmd" in
     create)
-      exec python3 "$kit_root/.agents/skills/workflow-kit-specify/scripts/create_workspace.py" "$@"
+      exec python3 "$kit_root/.agents/skills/workflow-kit/scripts/create_workspace.py" "$@"
       ;;
     list)
-      exec python3 "$kit_root/.agents/skills/workflow-kit-list/scripts/workflow_list_specs.py" "$@"
+      exec python3 "$kit_root/.agents/skills/workflow-kit/scripts/workflow_list_specs.py" "$@"
       ;;
     next-task)
-      exec python3 "$kit_root/.agents/skills/workflow-kit-list/scripts/workflow_list_specs.py" --next-task "$@"
+      exec python3 "$kit_root/.agents/skills/workflow-kit/scripts/workflow_list_specs.py" --next-task "$@"
       ;;
     batch-queue)
-      exec python3 "$kit_root/.agents/skills/workflow-kit-list/scripts/workflow_list_specs.py" --batch-queue "$@"
+      exec python3 "$kit_root/.agents/skills/workflow-kit/scripts/workflow_list_specs.py" --batch-queue "$@"
       ;;
     *)
       echo "workflow-kit Rust binary is unavailable; install Rust or set WORKFLOW_KIT_BIN" >&2

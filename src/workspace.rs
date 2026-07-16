@@ -143,7 +143,7 @@ impl Repository {
         fs::create_dir_all(&self.specs_dir)?;
         ensure_existing_contained(&self.root, &self.specs_dir, "specs directory")?;
         let template =
-            self.template(".agents/skills/workflow-kit-specify/assets/SPEC-TEMPLATE.md")?;
+            self.template(".agents/skills/workflow-kit/assets/SPEC-TEMPLATE.md")?;
 
         let timestamp = Local::now().format("%Y.%m.%d_%H:%M").to_string();
         let mut suffix = 1;
@@ -186,11 +186,11 @@ impl Repository {
                 &["spec.md"],
                 &[
                     (
-                        ".agents/skills/workflow-kit-plan/assets/PLAN-TEMPLATE.md",
+                        ".agents/skills/workflow-kit/assets/PLAN-TEMPLATE.md",
                         "plan.md",
                     ),
                     (
-                        ".agents/skills/workflow-kit-plan/assets/SCOPE-TEMPLATE.md",
+                        ".agents/skills/workflow-kit/assets/SCOPE-TEMPLATE.md",
                         "scope.md",
                     ),
                 ],
@@ -200,11 +200,11 @@ impl Repository {
                 &["spec.md", "plan.md", "scope.md"],
                 &[
                     (
-                        ".agents/skills/workflow-kit-tasks/assets/TASKS-TEMPLATE.json",
+                        ".agents/skills/workflow-kit/assets/TASKS-TEMPLATE.json",
                         "tasks.json",
                     ),
                     (
-                        ".agents/skills/workflow-kit-tasks/assets/VERIFICATION-TEMPLATE.md",
+                        ".agents/skills/workflow-kit/assets/VERIFICATION-TEMPLATE.md",
                         "verification.md",
                     ),
                 ],
@@ -213,7 +213,7 @@ impl Repository {
                 "research",
                 &["spec.md"],
                 &[(
-                    ".agents/skills/workflow-kit-plan/assets/RESEARCH-TEMPLATE.md",
+                    ".agents/skills/workflow-kit/assets/RESEARCH-TEMPLATE.md",
                     "research.md",
                 )],
             ),
@@ -221,7 +221,7 @@ impl Repository {
                 "data-model",
                 &["spec.md", "plan.md"],
                 &[(
-                    ".agents/skills/workflow-kit-plan/assets/DATA-MODEL-TEMPLATE.md",
+                    ".agents/skills/workflow-kit/assets/DATA-MODEL-TEMPLATE.md",
                     "data-model.md",
                 )],
             ),
@@ -336,11 +336,11 @@ impl Repository {
             }
         }
         for template in [
-            ".agents/skills/workflow-kit-specify/assets/SPEC-TEMPLATE.md",
-            ".agents/skills/workflow-kit-plan/assets/PLAN-TEMPLATE.md",
-            ".agents/skills/workflow-kit-plan/assets/SCOPE-TEMPLATE.md",
-            ".agents/skills/workflow-kit-tasks/assets/TASKS-TEMPLATE.json",
-            ".agents/skills/workflow-kit-tasks/assets/VERIFICATION-TEMPLATE.md",
+            ".agents/skills/workflow-kit/assets/SPEC-TEMPLATE.md",
+            ".agents/skills/workflow-kit/assets/PLAN-TEMPLATE.md",
+            ".agents/skills/workflow-kit/assets/SCOPE-TEMPLATE.md",
+            ".agents/skills/workflow-kit/assets/TASKS-TEMPLATE.json",
+            ".agents/skills/workflow-kit/assets/VERIFICATION-TEMPLATE.md",
         ] {
             if let Err(error) = self.template(template) {
                 report.problems.push(error.to_string());
@@ -447,7 +447,7 @@ pub fn evaluate_workspace(workspace: &Path) -> WorkspaceReport {
     if let Some(first) = report.ready_tasks.first() {
         report.status = WorkspaceStatus::Ready;
         report.command = Some(format!(
-            "workflow-kit-implement {} {}",
+            "workflow-kit implement {} {}",
             report.name, first.id
         ));
     } else if report.progress.done < report.progress.total {
@@ -564,31 +564,31 @@ mod tests {
         let directory = TempDir::new().unwrap();
         for (relative, contents) in [
             (
-                ".agents/skills/workflow-kit-specify/assets/SPEC-TEMPLATE.md",
+                ".agents/skills/workflow-kit/assets/SPEC-TEMPLATE.md",
                 "# spec template\n",
             ),
             (
-                ".agents/skills/workflow-kit-plan/assets/PLAN-TEMPLATE.md",
+                ".agents/skills/workflow-kit/assets/PLAN-TEMPLATE.md",
                 "# plan template\n",
             ),
             (
-                ".agents/skills/workflow-kit-plan/assets/SCOPE-TEMPLATE.md",
+                ".agents/skills/workflow-kit/assets/SCOPE-TEMPLATE.md",
                 "# scope template\n",
             ),
             (
-                ".agents/skills/workflow-kit-plan/assets/RESEARCH-TEMPLATE.md",
+                ".agents/skills/workflow-kit/assets/RESEARCH-TEMPLATE.md",
                 "# research template\n",
             ),
             (
-                ".agents/skills/workflow-kit-plan/assets/DATA-MODEL-TEMPLATE.md",
+                ".agents/skills/workflow-kit/assets/DATA-MODEL-TEMPLATE.md",
                 "# data model template\n",
             ),
             (
-                ".agents/skills/workflow-kit-tasks/assets/TASKS-TEMPLATE.json",
+                ".agents/skills/workflow-kit/assets/TASKS-TEMPLATE.json",
                 "{}\n",
             ),
             (
-                ".agents/skills/workflow-kit-tasks/assets/VERIFICATION-TEMPLATE.md",
+                ".agents/skills/workflow-kit/assets/VERIFICATION-TEMPLATE.md",
                 "# verification template\n",
             ),
         ] {

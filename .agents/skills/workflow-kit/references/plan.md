@@ -1,13 +1,8 @@
----
-name: workflow-kit-plan
-description: "Используй когда по готовому Workflow Kit spec.md нужен технический plan.md и scope.md: определить HOW, затронутые файлы, риски, исследования и проверки перед разбиением на tasks.json. Не использовать до готовой спецификации."
----
-
 # Workflow Kit: plan
 
 Создай технический план для изменения: `$ARGUMENTS`.
 
-Цель: создать self-contained `plan.md` для следующего AI-этапа `workflow-kit-tasks`. Plan должен перевести WHAT/WHY из `spec.md` в технический HOW: подход, файлы, контракты, тестирование, риски и границы редактирования.
+Цель: создать self-contained `plan.md` для следующего AI-этапа `workflow-kit tasks`. Plan должен перевести WHAT/WHY из `spec.md` в технический HOW: подход, файлы, контракты, тестирование, риски и границы редактирования.
 
 Не пиши код на этапе plan.
 
@@ -15,7 +10,7 @@ description: "Используй когда по готовому Workflow Kit s
 
 ### 1. Найди workspace
 
-Найди workspace, созданный `workflow-kit-specify`:
+Найди workspace, созданный `workflow-kit specify`:
 
 - если `$ARGUMENTS` — путь к workspace, используй его;
 - если `$ARGUMENTS` — `change-name`, найди `ai/specs/*_{change-name}/`;
@@ -87,7 +82,7 @@ description: "Используй когда по готовому Workflow Kit s
 
 ### 6. Создай или обнови `scope.md`
 
-`scope.md` — обязательный артефакт перед `workflow-kit-tasks` и `workflow-kit-implement`.
+`scope.md` — обязательный артефакт перед `workflow-kit tasks` и `workflow-kit implement`.
 
 Если `scope.md` уже есть — обнови его, если план меняет границы редактирования или выявляет новые public/shared surfaces.
 
@@ -133,12 +128,12 @@ description: "Используй когда по готовому Workflow Kit s
 - [ ] Новые/изменяемые файлы перечислены или честно ограничены областью поиска.
 - [ ] Тестовая стратегия есть.
 - [ ] Риски и подтверждения явно отмечены.
-- [ ] Plan самодостаточен для `workflow-kit-tasks`.
+- [ ] Plan самодостаточен для `workflow-kit tasks`.
 - [ ] Нет лишних технологий, слоёв и scope creep.
 
-### 10. Git и `.gitignore`
+### 10. Git
 
-Не выполняй `git add`, commit или push без явного запроса. Если пользователь попросил commit/stage — сначала проверь `git status --short --ignored` или `git check-ignore -v -- <path>` и не добавляй ignored-файлы без явного разрешения.
+Артефакты plan — локальные workflow artifacts. Не добавляй их в git, не создавай commit и не используй `git add -f`. Push на этом этапе не выполняй.
 
 ### 11. Результат
 
@@ -152,9 +147,9 @@ description: "Используй когда по готовому Workflow Kit s
 - краткий технический подход;
 - список новых/изменяемых файлов;
 - основные риски и что требует подтверждения;
-- готовность к `workflow-kit-tasks`: да/нет;
-- если не готово к `workflow-kit-tasks` — что нужно закрыть;
-- статус git/commit или причину, почему артефакты не добавлены.
+- готовность к `workflow-kit tasks`: да/нет;
+- если не готово к `workflow-kit tasks` — что нужно закрыть;
+- что workflow artifacts оставлены локально и не добавлены в git.
 
 Если остановилась до создания `plan.md`, в финале покажи:
 

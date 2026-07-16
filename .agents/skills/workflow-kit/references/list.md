@@ -1,8 +1,3 @@
----
-name: workflow-kit-list
-description: "Используй когда пользователь спрашивает, какие Workflow Kit specs/workspaces доступны, что READY/BLOCKED/DONE, что можно реализовать дальше или какую pending task выбрать из tasks.json. Показывает список ai/specs/* и следующий dependency-ready task."
----
-
 # Workflow Kit: list
 
 Покажи список Workflow Kit workspaces и задач, доступных к реализации.
@@ -74,7 +69,7 @@ scripts/workflow-kit list --status READY --status BLOCKED
 - `DONE` — все задачи имеют статус `done` или `skipped`.
 - `NEEDS_PLAN` — есть `spec.md`, но не хватает `plan.md` и/или `scope.md` до этапа tasks.
 - `NEEDS_TASKS` — есть `spec.md`, `plan.md`, `scope.md`, но нет `tasks.json`.
-- `LEGACY` — найден старый `tasks.md`, но нет `tasks.json`; такой workspace нельзя честно отдавать в `workflow-kit-implement` без миграции.
+- `LEGACY` — найден старый `tasks.md`, но нет `tasks.json`; такой workspace нельзя честно отдавать в `workflow-kit implement` без миграции.
 - `BROKEN` — битый `tasks.json`, отсутствуют обязательные файлы при наличии `tasks.json`, нет `spec.md`, или строгая schema v1/v2 задач невалидна.
 
 ## Как отвечать пользователю
@@ -84,7 +79,7 @@ scripts/workflow-kit list --status READY --status BLOCKED
 3. Для каждого `READY` назови progress, первые runnable tasks и команду запуска.
 4. `BLOCKED` показывай кратко: причина блокера и что закрыть.
 5. `DONE` не расписывай без запроса; scanner по умолчанию скрывает done-workspaces и показывает счётчик.
-6. Если пользователь просит начать реализацию, передай точный workspace/task в `workflow-kit-implement`; для экономии контекста используй `scripts/workflow-kit next-task`.
+6. Если пользователь просит начать реализацию, передай точный workspace/task в `workflow-kit implement`; для экономии контекста используй `scripts/workflow-kit next-task`.
 
 Пример:
 
@@ -94,7 +89,7 @@ READY
   next:
     T001 P0 — Стабилизировать UI smoke-тесты
     T002 P0 — Синхронизировать денежные поля
-  command: workflow-kit-implement 2026.06.08_17:45_ui-review-fixes T001
+  command: workflow-kit implement 2026.06.08_17:45_ui-review-fixes T001
 ```
 
 ## Правила

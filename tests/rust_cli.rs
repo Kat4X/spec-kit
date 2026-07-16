@@ -14,31 +14,31 @@ impl Fixture {
         let root = directory.path().to_path_buf();
         for (relative, contents) in [
             (
-                ".agents/skills/workflow-kit-specify/assets/SPEC-TEMPLATE.md",
+                ".agents/skills/workflow-kit/assets/SPEC-TEMPLATE.md",
                 "# Spec template\n",
             ),
             (
-                ".agents/skills/workflow-kit-plan/assets/PLAN-TEMPLATE.md",
+                ".agents/skills/workflow-kit/assets/PLAN-TEMPLATE.md",
                 "# Plan template\n",
             ),
             (
-                ".agents/skills/workflow-kit-plan/assets/SCOPE-TEMPLATE.md",
+                ".agents/skills/workflow-kit/assets/SCOPE-TEMPLATE.md",
                 "# Scope template\n",
             ),
             (
-                ".agents/skills/workflow-kit-plan/assets/RESEARCH-TEMPLATE.md",
+                ".agents/skills/workflow-kit/assets/RESEARCH-TEMPLATE.md",
                 "# Research template\n",
             ),
             (
-                ".agents/skills/workflow-kit-plan/assets/DATA-MODEL-TEMPLATE.md",
+                ".agents/skills/workflow-kit/assets/DATA-MODEL-TEMPLATE.md",
                 "# Data model template\n",
             ),
             (
-                ".agents/skills/workflow-kit-tasks/assets/TASKS-TEMPLATE.json",
+                ".agents/skills/workflow-kit/assets/TASKS-TEMPLATE.json",
                 "{}\n",
             ),
             (
-                ".agents/skills/workflow-kit-tasks/assets/VERIFICATION-TEMPLATE.md",
+                ".agents/skills/workflow-kit/assets/VERIFICATION-TEMPLATE.md",
                 "# Verification template\n",
             ),
         ] {

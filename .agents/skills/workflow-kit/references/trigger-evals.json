@@ -2,32 +2,32 @@
   {
     "query": "Создай spec для экспорта задач в CSV",
     "should_trigger": true,
-    "skill": "workflow-kit-specify"
+    "skill": "workflow-kit"
   },
   {
     "query": "Нужно спланировать реализацию по ai/specs/2026.07.09_10:00_export-tasks/spec.md",
     "should_trigger": true,
-    "skill": "workflow-kit-plan"
+    "skill": "workflow-kit"
   },
   {
     "query": "Разбей готовый plan.md на tasks.json",
     "should_trigger": true,
-    "skill": "workflow-kit-tasks"
+    "skill": "workflow-kit"
   },
   {
     "query": "Реализуй следующую задачу workflow-kit для export-tasks",
     "should_trigger": true,
-    "skill": "workflow-kit-implement"
+    "skill": "workflow-kit"
   },
   {
     "query": "Проверь change перед закрытием, все ли задачи и verification сходятся",
     "should_trigger": true,
-    "skill": "workflow-kit-verify"
+    "skill": "workflow-kit"
   },
   {
     "query": "Что у нас сейчас готово к реализации в ai/specs?",
     "should_trigger": true,
-    "skill": "workflow-kit-list"
+    "skill": "workflow-kit"
   },
   {
     "query": "Проведи новый change целиком через specify, plan, tasks, implement и verify",

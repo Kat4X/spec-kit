@@ -26,12 +26,14 @@ You may batch workflow artifact updates:
 
 - keep a short verification ledger while working;
 - update `tasks.json` and `verification.md` at checkpoints, not after every microstep;
-- checkpoint after a related group, before a risky transition, and at the end;
+- checkpoint artifacts after a related group, before a risky transition, and at the end;
 - after a batched update, validate `tasks.json` once (`jq empty` or equivalent);
 - avoid duplicate checks when a later/wider command strictly covers earlier required checks; say what it covers in evidence;
 - never mark `done` until required checks passed or are explicitly covered by a covering-check.
 
 Implementation fixes in MVP belong in `tasks.json` plus `verification.md` evidence, not in a separate file.
+
+After all required checks for the selected batch pass, create one commit containing only that batch's implementation files. Keep `tasks.json`, `verification.md`, and all other `ai/specs/**` artifacts local. Do not create partial commits for a failed or blocked batch, and do not push.
 
 ## Stop output
 
@@ -56,5 +58,6 @@ Workflow artifacts:
   verification.md updated once after batch
 
 Прогресс: 6/8 done
+Commit: <hash>
 Следующая: [T007] ...
 ```

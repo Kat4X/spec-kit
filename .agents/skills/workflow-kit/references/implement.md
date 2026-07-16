@@ -1,8 +1,3 @@
----
-name: workflow-kit-implement
-description: "Используй когда пользователь просит реализовать следующую или конкретную задачу Workflow Kit из tasks.json. Читает spec.md/plan.md/scope.md, выполняет один dependency-ready task по умолчанию, обновляет tasks.json и verification.md; batch/yolo только по явному запросу."
----
-
 # Workflow Kit: implement
 
 Имплементируй задачу для изменения: `$ARGUMENTS`.
@@ -132,8 +127,8 @@ Implementation fix в MVP фиксируй как задачу в `tasks.json` �
 
 Если поведение не сходится:
 
-- Если `spec.md` неверна или неполна — остановись и предложи вернуться к `workflow-kit-specify`.
-- Если `plan.md` неверен или неполон — остановись и предложи вернуться к `workflow-kit-plan`.
+- Если `spec.md` неверна или неполна — остановись и предложи вернуться к `workflow-kit specify`.
+- Если `plan.md` неверен или неполон — остановись и предложи вернуться к `workflow-kit plan`.
 - Если `tasks.json` неверен или неполон — остановись и предложи обновить tasks.
 - Если spec/plan/tasks верны, но код не соответствует — исправь в рамках текущей задачи или создай fix task в `tasks.json`.
 
@@ -155,9 +150,11 @@ Implementation fix в MVP фиксируй как задачу в `tasks.json` �
 
 В batch/yolo режиме при остановке используй stop output из `references/batch-mode.md`.
 
-### 9. Git и `.gitignore`
+### 9. Git checkpoint
 
-Не выполняй `git add`, commit или push без явного запроса. Если пользователь попросил commit/stage — сначала проверь `git status --short --ignored` или `git check-ignore -v -- <path>` и не добавляй ignored-файлы без явного разрешения.
+Перед изменениями зафиксируй `git status --short --ignored`. После успешных required checks и перевода execution unit в `done` создай отдельный commit только с implementation-файлами этой unit. `tasks.json`, `verification.md` и остальные файлы `ai/specs/**` оставь локальными; не используй `git add -f`. Не захватывай посторонние или ранее существовавшие изменения.
+
+Рекомендуемый commit message: `workflow(implement): <task-id> <краткое название>`. Для batch/yolo создай один commit с implementation-файлами после успешной проверки всего batch. При блокере, падающем required check или отсутствии implementation-изменений commit не создавай. Push на этом этапе не выполняй.
 
 ### 10. Результат после задачи или batch
 
@@ -181,6 +178,7 @@ Workflow artifacts:
   verification.md updated
 
 Прогресс: 5/12 done
+Commit: <hash>
 Следующая: [T006] ...
 ```
 

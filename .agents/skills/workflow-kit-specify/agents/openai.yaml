@@ -1,4 +1,0 @@
-interface:
-  display_name: "Workflow Kit: спецификация"
-  short_description: "Создаёт спецификацию atomic change"
-  default_prompt: "Используй $workflow-kit-specify, чтобы описать один atomic change без деталей реализации."
