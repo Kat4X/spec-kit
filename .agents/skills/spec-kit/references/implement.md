@@ -1,4 +1,4 @@
-# Workflow Kit: implement
+# Spec Kit: implement
 
 Имплементируй задачу для изменения: `$ARGUMENTS`.
 
@@ -43,8 +43,8 @@
 Получай task payload через CLI:
 
 ```bash
-scripts/workflow-kit next-task <workspace> --root .
-scripts/workflow-kit next-task <workspace> --task-id Txxx --root .
+workflow-kit next-task <workspace> --root .
+workflow-kit next-task <workspace> --task-id Txxx --root .
 ```
 
 Для batch/yolo используй очередь и правила из `references/batch-mode.md`.
@@ -65,8 +65,8 @@ scripts/workflow-kit next-task <workspace> --task-id Txxx --root .
 
 ### 3. Выбери задачу или batch
 
-- Если указан `Txxx` — используй `scripts/workflow-kit next-task <workspace> --task-id Txxx` и работай только с задачей с таким `id`.
-- Если `task-id` не указан и batch/yolo не запрошен — используй `scripts/workflow-kit next-task <workspace>` и работай с возвращённой задачей.
+- Если указан `Txxx` — используй `workflow-kit next-task <workspace> --task-id Txxx` и работай только с задачей с таким `id`.
+- Если `task-id` не указан и batch/yolo не запрошен — используй `workflow-kit next-task <workspace>` и работай с возвращённой задачей.
 - Если явно запрошен batch/yolo — работай по `references/batch-mode.md`.
 - Проверь `dependsOn`, `confirmation`, `refs`, `files` и `checks` выбранной задачи или всех задач batch-очереди. Для schema v1 прочитай legacy-поля `confirmationRequired`/`confirmation`.
 
@@ -127,8 +127,8 @@ Implementation fix в MVP фиксируй как задачу в `tasks.json` �
 
 Если поведение не сходится:
 
-- Если `spec.md` неверна или неполна — остановись и предложи вернуться к `workflow-kit specify`.
-- Если `plan.md` неверен или неполон — остановись и предложи вернуться к `workflow-kit plan`.
+- Если `spec.md` неверна или неполна — остановись и предложи вернуться к `spec-kit specify`.
+- Если `plan.md` неверен или неполон — остановись и предложи вернуться к `spec-kit plan`.
 - Если `tasks.json` неверен или неполон — остановись и предложи обновить tasks.
 - Если spec/plan/tasks верны, но код не соответствует — исправь в рамках текущей задачи или создай fix task в `tasks.json`.
 

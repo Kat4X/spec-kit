@@ -7,13 +7,13 @@ Use only when the user explicitly asks for `yolo mode`, `batch`, `продолж
 Build the deterministic queue from `execution.order`. The command simulates completion of earlier queued tasks, so downstream tasks may enter the same batch without intermediate artifact writes:
 
 ```bash
-scripts/workflow-kit batch-queue <workspace> --root .
+workflow-kit batch-queue <workspace> --root .
 ```
 
 Then load each task payload before editing:
 
 ```bash
-scripts/workflow-kit next-task <workspace> --task-id Txxx --root .
+workflow-kit next-task <workspace> --task-id Txxx --root .
 ```
 
 A dependency is complete only when the dependency task is `status: "done"` or has justified `status: "skipped"`. Inside a batch, a dependency may count as complete after the earlier queued task is implemented and verified. Tasks awaiting/rejecting confirmation remain in `blockers`; approved confirmations may enter `queue`.

@@ -1,16 +1,16 @@
-# Workflow Kit
+# Spec Kit
 
 > Skills-first workflow для AI-агентов: фиксируем намерение, план, границы редактирования, машинно-читаемые задачи и проверку в файлах, а компактный Rust CLI выдаёт агенту только следующую работу и связанный контекст.
 
 ## Статус
 
-Черновик для валидации. Единый state-machine skill установлен в `.agents/skills/workflow-kit/`, Rust CLI покрывает lifecycle workspace, task selection, context packet и безопасный claim.
+Черновик для валидации. Единый state-machine skill установлен в `.agents/skills/spec-kit/`, Rust CLI покрывает lifecycle workspace, task selection, context packet и безопасный claim.
 
 ## Зачем
 
 Обычная работа с AI часто разваливается из-за потери контекста: идея осталась в чате, агент сделал кусок, потом непонятно, что уже решено и почему.
 
-Workflow Kit переносит состояние работы в файлы:
+Spec Kit переносит состояние работы в файлы:
 
 ```text
 idea → spec.md → research.md → plan.md → scope.md → tasks.json → code → verification.md
@@ -70,17 +70,19 @@ docs/
   artifact-contracts.md    # контракт файлов
 
 scripts/
-  workflow-kit            # launcher Rust CLI + repository helpers
-  check-consistency.sh     # sanity-check структуры, терминологии и шаблонов
+  workflow-kit            # dev-launcher Rust CLI
+  check                   # все проверки репозитория
 
-src/                      # Rust CLI: artifacts, scheduler, packet, claim
+tools/
+  validate_skill.py       # dev-only проверка Agent Skills metadata/ссылок
+
+src/                      # единственная реализация CLI
 
 .agents/skills/
-  workflow-kit/
+  spec-kit/
     SKILL.md              # state machine и единая точка входа
     references/           # инструкции фаз, загружаемые по текущему состоянию
-    assets/               # шаблоны workflow artifacts
-    scripts/              # fallback helpers и skill validation
+    assets/               # canonical templates, embedded в Rust binary
 ```
 
 ## Быстрый список workspaces
@@ -100,7 +102,7 @@ scripts/workflow-kit batch-queue <workspace> --root .
 
 ## Rust CLI для агента
 
-Первый build требует stable Rust; после этого launcher использует актуальный локальный binary и не требует Python для core-команд:
+Первый build требует stable Rust; после этого launcher использует актуальный локальный binary. Python fallback для core-команд отсутствует:
 
 ```bash
 export PATH="/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:$PATH"
@@ -131,13 +133,13 @@ scripts/workflow-kit validate "$WORKSPACE" --root . --json
 
 `claim` под блокировкой повторно проверяет revision и готовность unit, затем атомарно переводит выбранные задачи в `in_progress`. Stale packet завершается conflict без частичной записи; `--dry-run` возвращает предполагаемый результат без изменения workspace.
 
-Проверить структуру локальных Agent Skills:
+Проверить весь репозиторий:
 
 ```bash
-scripts/workflow-kit validate-skills
-scripts/workflow-kit test
-scripts/check-consistency.sh
+scripts/check
 ```
+
+Установленный skill вызывает `workflow-kit` из `PATH`; путь `scripts/workflow-kit` существует только для разработки этого репозитория.
 
 ## Следующий шаг
 

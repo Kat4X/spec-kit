@@ -1,9 +1,10 @@
 ---
-name: workflow-kit
-description: "Используй для любого действия Workflow Kit: создать или уточнить spec, построить plan/scope, создать tasks.json, реализовать следующую задачу, проверить change, показать workspaces или продолжить полный цикл. Skill определяет текущую фазу по артефактам workspace и выполняет только допустимый переход state machine."
+name: spec-kit
+description: "Используй для любого действия Spec Kit: создать или уточнить spec, построить plan/scope, создать tasks.json, реализовать следующую задачу, проверить change, показать workspaces или продолжить полный цикл. Skill определяет текущую фазу по артефактам workspace и выполняет только допустимый переход state machine."
+compatibility: "Requires the workflow-kit CLI on PATH and Git."
 ---
 
-# Workflow Kit
+# Spec Kit
 
 Работай через артефакты workspace, а не через память чата. Это единственная публичная точка входа; фазовые инструкции загружай из `references/` только после определения состояния и действия.
 
@@ -34,13 +35,13 @@ NO_WORKSPACE → SPECIFY → PLAN → TASKS → IMPLEMENT → VERIFY → COMPLET
 Для существующего workspace сначала запусти:
 
 ```bash
-scripts/workflow-kit validate <workspace> --root . --json
+workflow-kit validate <workspace> --root . --json
 ```
 
 Для списка или выбора workspace:
 
 ```bash
-scripts/workflow-kit list --root . --json
+workflow-kit list --root . --json
 ```
 
 `validate/list` дают структурный статус, но переход всё равно обязан проверить фазовый guard ниже.
@@ -85,11 +86,3 @@ scripts/workflow-kit list --root . --json
 - Артефакты workspace в `ai/specs/**` остаются локальными: не добавляй их в git и не используй `git add -f`.
 - Commit создавай только в IMPLEMENT после успешно проверенной execution unit; в batch/yolo — один commit на успешно проверенный batch. В commit включай только implementation-файлы, изменённые по текущей spec, и не захватывай чужие или ранее существовавшие изменения.
 - Push не выполняй автоматически. После `COMPLETE` спроси разрешение на push текущей ветки и выполняй его только после подтверждения.
-
-## Проверки самого kit
-
-```bash
-scripts/workflow-kit validate-skills
-scripts/workflow-kit test
-scripts/check-consistency.sh
-```

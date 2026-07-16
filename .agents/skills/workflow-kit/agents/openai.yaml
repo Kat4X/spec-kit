@@ -1,4 +1,0 @@
-interface:
-  display_name: "Workflow Kit"
-  short_description: "State machine для проверяемого цикла изменений"
-  default_prompt: "Используй $workflow-kit: определи состояние workspace и выполни следующий допустимый переход."

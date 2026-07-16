@@ -1,8 +1,8 @@
-# Workflow Kit: specify
+# Spec Kit: specify
 
 Создай спецификацию для изменения: `$ARGUMENTS`.
 
-Цель: создать self-contained `spec.md` для следующего AI-этапа `workflow-kit plan`. Spec должна описывать один atomic change: WHAT/WHY, границы, проверки, out-of-scope и открытые вопросы. Не проектируй HOW.
+Цель: создать self-contained `spec.md` для следующего AI-этапа `spec-kit plan`. Spec должна описывать один atomic change: WHAT/WHY, границы, проверки, out-of-scope и открытые вопросы. Не проектируй HOW.
 
 ## Порядок работы
 
@@ -39,7 +39,7 @@ Atomic change может быть целой фичей с нескольким�
 Создай workspace скриптом из этого skill'а:
 
 ```bash
-scripts/workflow-kit create "change name" --root .
+workflow-kit create "change name" --root .
 ```
 
 Скрипт нормализует `change-name`, создаёт `ai/specs/YYYY.MM.DD_HH:MM_change-name/` и копирует `assets/SPEC-TEMPLATE.md` в `spec.md`.
@@ -109,9 +109,9 @@ Workspace — это контейнер работы, а не награда з�
 
 ### 6. Зафиксируй ранние scope-ограничения в spec
 
-`scope.md` создаёт и обновляет `workflow-kit plan`. На этапе specify не создавай `scope.md`, чтобы у артефакта был один владелец и один шаблон.
+`scope.md` создаёт и обновляет `spec-kit plan`. На этапе specify не создавай `scope.md`, чтобы у артефакта был один владелец и один шаблон.
 
-Если уже видно, что change затрагивает public surface, несколько модулей, опасные файлы или явные запреты, зафиксируй это в `spec.md` как границы результата, out-of-scope, риск или open question. `workflow-kit plan` перенесёт это в `scope.md`.
+Если уже видно, что change затрагивает public surface, несколько модулей, опасные файлы или явные запреты, зафиксируй это в `spec.md` как границы результата, out-of-scope, риск или open question. `spec-kit plan` перенесёт это в `scope.md`.
 
 ### 7. Проверь качество
 
@@ -144,8 +144,8 @@ Workspace — это контейнер работы, а не награда з�
 - краткую суть spec;
 - выбранный формат требований/кейсов;
 - количество `ТРЕБУЕТ УТОЧНЕНИЯ`;
-- готовность к `workflow-kit plan`: да/нет;
-- если не готово к `workflow-kit plan` — что нужно закрыть;
+- готовность к `spec-kit plan`: да/нет;
+- если не готово к `spec-kit plan` — что нужно закрыть;
 - что workflow artifacts оставлены локально и не добавлены в git.
 
 Если остановилась до создания workspace, в финале покажи:

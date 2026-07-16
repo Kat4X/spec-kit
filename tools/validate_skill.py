@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the strict YAML subset used by local Agent Skills."""
+"""Validate the dependency-free YAML subset used by local Agent Skills."""
 from __future__ import annotations
 
 import json
@@ -10,8 +10,8 @@ from pathlib import Path
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 KEY_RE = re.compile(r"^[a-z][a-z0-9-]*$")
 REF_RE = re.compile(r"(?:`|\()((?:assets|references|scripts)/[^`)\s]+)")
-MAX = {"name": 64, "description": 1024}
-KNOWN = {"name", "description"}
+MAX = {"name": 64, "description": 1024, "compatibility": 500}
+KNOWN = {"name", "description", "license", "compatibility", "metadata", "allowed-tools"}
 
 
 def scalar(value: str, lineno: int) -> str:
@@ -35,7 +35,7 @@ def scalar(value: str, lineno: int) -> str:
     return value
 
 
-def frontmatter(path: Path) -> dict[str, str]:
+def frontmatter(path: Path) -> dict[str, object]:
     lines = path.read_text(encoding="utf-8").splitlines()
     if not lines or lines[0] != "---":
         raise ValueError("missing YAML frontmatter")
@@ -44,12 +44,24 @@ def frontmatter(path: Path) -> dict[str, str]:
     except ValueError as exc:
         raise ValueError("unterminated YAML frontmatter") from exc
 
-    fields: dict[str, str] = {}
+    fields: dict[str, object] = {}
+    metadata: dict[str, str] | None = None
     for lineno, line in enumerate(lines[1:closing], start=2):
         if not line.strip():
             continue
-        if line[:1].isspace() or "\t" in line:
-            raise ValueError(f"line {lineno}: nested or tab-indented frontmatter is not supported")
+        if "\t" in line:
+            raise ValueError(f"line {lineno}: tabs are not supported")
+        if line[:1].isspace():
+            if metadata is None or not line.startswith("  "):
+                raise ValueError(f"line {lineno}: only metadata string entries may be nested")
+            key, sep, value = line.strip().partition(":")
+            if not sep or not KEY_RE.fullmatch(key):
+                raise ValueError(f"line {lineno}: invalid metadata entry")
+            if key in metadata:
+                raise ValueError(f"line {lineno}: duplicate metadata key: {key}")
+            metadata[key] = scalar(value, lineno)
+            continue
+
         key, sep, value = line.partition(":")
         key = key.strip()
         if not sep:
@@ -58,7 +70,14 @@ def frontmatter(path: Path) -> dict[str, str]:
             raise ValueError(f"line {lineno}: invalid frontmatter key")
         if key in fields:
             raise ValueError(f"line {lineno}: duplicate frontmatter key: {key}")
-        fields[key] = scalar(value, lineno)
+        if key == "metadata":
+            if value.strip():
+                raise ValueError(f"line {lineno}: metadata must be a nested string mapping")
+            metadata = {}
+            fields[key] = metadata
+        else:
+            metadata = None
+            fields[key] = scalar(value, lineno)
     return fields
 
 
@@ -79,27 +98,45 @@ def validate(path: Path) -> list[str]:
         errors.append("unknown frontmatter fields: " + ", ".join(unknown))
 
     name = fields.get("name", "")
-    if name:
-        if len(name) > MAX["name"]:
-            errors.append("name exceeds 64 characters")
+    if isinstance(name, str) and name:
         if not NAME_RE.fullmatch(name):
             errors.append("name must use lowercase letters, numbers, and single hyphens")
         if name != path.parent.name:
             errors.append(f"name must match parent directory ({path.parent.name})")
 
-    description = fields.get("description", "")
-    if len(description) > MAX["description"]:
-        errors.append("description exceeds 1024 characters")
+    for key, limit in MAX.items():
+        value = fields.get(key)
+        if isinstance(value, str) and len(value) > limit:
+            errors.append(f"{key} exceeds {limit} characters")
+
+    for key, value in fields.items():
+        if key != "metadata" and not isinstance(value, str):
+            errors.append(f"{key} must be a string")
+    metadata = fields.get("metadata")
+    if metadata is not None and (
+        not isinstance(metadata, dict)
+        or any(
+            not isinstance(key, str) or not isinstance(value, str)
+            for key, value in metadata.items()
+        )
+    ):
+        errors.append("metadata must map strings to strings")
 
     for ref in sorted(set(REF_RE.findall(text))):
-        if not (path.parent / ref).exists() and not Path(ref).exists():
+        if not (path.parent / ref).exists():
             errors.append(f"missing referenced file: {ref}")
     return errors
 
 
 def main(argv: list[str]) -> int:
     root = Path(argv[1]) if len(argv) > 1 else Path(".agents/skills")
-    files = sorted(root.glob("*/SKILL.md")) if root.is_dir() else [root]
+    files = (
+        [root / "SKILL.md"]
+        if root.is_dir() and (root / "SKILL.md").is_file()
+        else sorted(root.glob("*/SKILL.md"))
+        if root.is_dir()
+        else [root]
+    )
     if not files:
         print(f"no SKILL.md files found under {root}", file=sys.stderr)
         return 2

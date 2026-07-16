@@ -252,7 +252,7 @@ fn next_task_command(
 
 fn list_text(results: &[WorkspaceReport], hidden_done: usize, max_next: usize) -> String {
     if results.is_empty() {
-        return "No Workflow Kit workspaces found for the selected filters.".into();
+        return "No Spec Kit workspaces found for the selected filters.".into();
     }
     let mut output = String::new();
     for status in all_statuses() {

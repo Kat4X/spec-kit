@@ -12,40 +12,6 @@ impl Fixture {
     fn new() -> Self {
         let directory = TempDir::new().unwrap();
         let root = directory.path().to_path_buf();
-        for (relative, contents) in [
-            (
-                ".agents/skills/workflow-kit/assets/SPEC-TEMPLATE.md",
-                "# Spec template\n",
-            ),
-            (
-                ".agents/skills/workflow-kit/assets/PLAN-TEMPLATE.md",
-                "# Plan template\n",
-            ),
-            (
-                ".agents/skills/workflow-kit/assets/SCOPE-TEMPLATE.md",
-                "# Scope template\n",
-            ),
-            (
-                ".agents/skills/workflow-kit/assets/RESEARCH-TEMPLATE.md",
-                "# Research template\n",
-            ),
-            (
-                ".agents/skills/workflow-kit/assets/DATA-MODEL-TEMPLATE.md",
-                "# Data model template\n",
-            ),
-            (
-                ".agents/skills/workflow-kit/assets/TASKS-TEMPLATE.json",
-                "{}\n",
-            ),
-            (
-                ".agents/skills/workflow-kit/assets/VERIFICATION-TEMPLATE.md",
-                "# Verification template\n",
-            ),
-        ] {
-            let path = root.join(relative);
-            fs::create_dir_all(path.parent().unwrap()).unwrap();
-            fs::write(path, contents).unwrap();
-        }
         fs::create_dir_all(root.join("ai/specs")).unwrap();
         Self {
             _directory: directory,
@@ -176,9 +142,10 @@ fn create_and_scaffold_are_unicode_safe_unique_and_no_overwrite() {
             .unwrap()
             .contains("экспорт-задач")
     );
-    assert_eq!(
-        fs::read_to_string(first_path.join("spec.md")).unwrap(),
-        "# Spec template\n"
+    assert!(
+        fs::read_to_string(first_path.join("spec.md"))
+            .unwrap()
+            .starts_with("# {Change Name}")
     );
 
     let workspace = path_string(&first_path);

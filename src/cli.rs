@@ -6,7 +6,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 #[command(
     name = "workflow-kit",
     version,
-    about = "Agent-oriented Workflow Kit CLI",
+    about = "Agent-oriented Spec Kit CLI",
     propagate_version = true
 )]
 pub struct Cli {
@@ -38,7 +38,7 @@ pub enum Command {
         phase: ScaffoldPhase,
     },
 
-    /// List and evaluate Workflow Kit workspaces.
+    /// List and evaluate Spec Kit workspaces.
     List {
         #[arg(long)]
         all: bool,

@@ -3,7 +3,7 @@ name = "workflow-kit-cli"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.85"
-description = "Agent-oriented CLI for Workflow Kit artifacts and task queues"
+description = "Agent-oriented CLI for Spec Kit artifacts and task queues"
 license = "MIT"
 publish = false
 

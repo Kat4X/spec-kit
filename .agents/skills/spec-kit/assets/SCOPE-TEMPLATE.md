@@ -4,7 +4,7 @@ Spec: [spec.md](spec.md)
 Plan: [plan.md](plan.md)
 
 <!--
-Scope задаёт границы редактирования для workflow-kit tasks/implement.
+Scope задаёт границы редактирования для spec-kit tasks/implement.
 Перед финалом удали HTML comments и placeholders.
 -->
 

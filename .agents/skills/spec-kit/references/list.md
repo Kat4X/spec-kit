@@ -1,6 +1,6 @@
-# Workflow Kit: list
+# Spec Kit: list
 
-Покажи список Workflow Kit workspaces и задач, доступных к реализации.
+Покажи список Spec Kit workspaces и задач, доступных к реализации.
 
 Источник истины — только файлы workspace в `ai/specs/*`:
 
@@ -17,49 +17,49 @@
 Из корня репозитория:
 
 ```bash
-scripts/workflow-kit list
+workflow-kit list
 ```
 
 Полный список, включая завершённые:
 
 ```bash
-scripts/workflow-kit list --all
+workflow-kit list --all
 ```
 
 Машинно-читаемый вывод:
 
 ```bash
-scripts/workflow-kit list --json
+workflow-kit list --json
 ```
 
 Только первый runnable task без вывода всего `tasks.json`:
 
 ```bash
-scripts/workflow-kit next-task ai/specs/2026.06.08_17:45_ui-review-fixes
+workflow-kit next-task ai/specs/2026.06.08_17:45_ui-review-fixes
 ```
 
 Только конкретная task без вывода всего `tasks.json`:
 
 ```bash
-scripts/workflow-kit next-task ai/specs/2026.06.08_17:45_ui-review-fixes --task-id T003
+workflow-kit next-task ai/specs/2026.06.08_17:45_ui-review-fixes --task-id T003
 ```
 
 Без аргумента берётся первый READY workspace:
 
 ```bash
-scripts/workflow-kit next-task
+workflow-kit next-task
 ```
 
 Детерминированная очередь для batch/yolo с учётом `execution.order`, зависимостей и подтверждений:
 
 ```bash
-scripts/workflow-kit batch-queue ai/specs/2026.06.08_17:45_ui-review-fixes
+workflow-kit batch-queue ai/specs/2026.06.08_17:45_ui-review-fixes
 ```
 
 Только конкретные статусы:
 
 ```bash
-scripts/workflow-kit list --status READY --status BLOCKED
+workflow-kit list --status READY --status BLOCKED
 ```
 
 ## Статусы workspace
@@ -69,7 +69,7 @@ scripts/workflow-kit list --status READY --status BLOCKED
 - `DONE` — все задачи имеют статус `done` или `skipped`.
 - `NEEDS_PLAN` — есть `spec.md`, но не хватает `plan.md` и/или `scope.md` до этапа tasks.
 - `NEEDS_TASKS` — есть `spec.md`, `plan.md`, `scope.md`, но нет `tasks.json`.
-- `LEGACY` — найден старый `tasks.md`, но нет `tasks.json`; такой workspace нельзя честно отдавать в `workflow-kit implement` без миграции.
+- `LEGACY` — найден старый `tasks.md`, но нет `tasks.json`; такой workspace нельзя честно отдавать в `spec-kit implement` без миграции.
 - `BROKEN` — битый `tasks.json`, отсутствуют обязательные файлы при наличии `tasks.json`, нет `spec.md`, или строгая schema v1/v2 задач невалидна.
 
 ## Как отвечать пользователю
@@ -79,7 +79,7 @@ scripts/workflow-kit list --status READY --status BLOCKED
 3. Для каждого `READY` назови progress, первые runnable tasks и команду запуска.
 4. `BLOCKED` показывай кратко: причина блокера и что закрыть.
 5. `DONE` не расписывай без запроса; scanner по умолчанию скрывает done-workspaces и показывает счётчик.
-6. Если пользователь просит начать реализацию, передай точный workspace/task в `workflow-kit implement`; для экономии контекста используй `scripts/workflow-kit next-task`.
+6. Если пользователь просит начать реализацию, передай точный workspace/task в `spec-kit implement`; для экономии контекста используй `workflow-kit next-task`.
 
 Пример:
 
@@ -89,7 +89,7 @@ READY
   next:
     T001 P0 — Стабилизировать UI smoke-тесты
     T002 P0 — Синхронизировать денежные поля
-  command: workflow-kit implement 2026.06.08_17:45_ui-review-fixes T001
+  command: spec-kit implement 2026.06.08_17:45_ui-review-fixes T001
 ```
 
 ## Правила

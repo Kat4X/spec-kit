@@ -2,37 +2,37 @@
   {
     "query": "Создай spec для экспорта задач в CSV",
     "should_trigger": true,
-    "skill": "workflow-kit"
+    "skill": "spec-kit"
   },
   {
     "query": "Нужно спланировать реализацию по ai/specs/2026.07.09_10:00_export-tasks/spec.md",
     "should_trigger": true,
-    "skill": "workflow-kit"
+    "skill": "spec-kit"
   },
   {
     "query": "Разбей готовый plan.md на tasks.json",
     "should_trigger": true,
-    "skill": "workflow-kit"
+    "skill": "spec-kit"
   },
   {
-    "query": "Реализуй следующую задачу workflow-kit для export-tasks",
+    "query": "Реализуй следующую задачу spec-kit для export-tasks",
     "should_trigger": true,
-    "skill": "workflow-kit"
+    "skill": "spec-kit"
   },
   {
     "query": "Проверь change перед закрытием, все ли задачи и verification сходятся",
     "should_trigger": true,
-    "skill": "workflow-kit"
+    "skill": "spec-kit"
   },
   {
     "query": "Что у нас сейчас готово к реализации в ai/specs?",
     "should_trigger": true,
-    "skill": "workflow-kit"
+    "skill": "spec-kit"
   },
   {
     "query": "Проведи новый change целиком через specify, plan, tasks, implement и verify",
     "should_trigger": true,
-    "skill": "workflow-kit"
+    "skill": "spec-kit"
   },
   {
     "query": "Напиши функцию форматирования даты без workflow artifacts",
@@ -50,7 +50,7 @@
     "skill": null
   },
   {
-    "query": "Добавь тест для calculator-core.mjs прямо сейчас, без spec процесса",
+    "query": "Добавь тест для date formatter прямо сейчас, без spec процесса",
     "should_trigger": false,
     "skill": null
   }

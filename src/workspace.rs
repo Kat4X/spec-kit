@@ -22,6 +22,18 @@ const REQUIRED_FOR_IMPLEMENT: [&str; 5] = [
     "verification.md",
 ];
 
+const SPEC_TEMPLATE: &[u8] = include_bytes!("../.agents/skills/spec-kit/assets/SPEC-TEMPLATE.md");
+const PLAN_TEMPLATE: &[u8] = include_bytes!("../.agents/skills/spec-kit/assets/PLAN-TEMPLATE.md");
+const SCOPE_TEMPLATE: &[u8] = include_bytes!("../.agents/skills/spec-kit/assets/SCOPE-TEMPLATE.md");
+const TASKS_TEMPLATE: &[u8] =
+    include_bytes!("../.agents/skills/spec-kit/assets/TASKS-TEMPLATE.json");
+const VERIFICATION_TEMPLATE: &[u8] =
+    include_bytes!("../.agents/skills/spec-kit/assets/VERIFICATION-TEMPLATE.md");
+const RESEARCH_TEMPLATE: &[u8] =
+    include_bytes!("../.agents/skills/spec-kit/assets/RESEARCH-TEMPLATE.md");
+const DATA_MODEL_TEMPLATE: &[u8] =
+    include_bytes!("../.agents/skills/spec-kit/assets/DATA-MODEL-TEMPLATE.md");
+
 #[derive(Clone, Debug)]
 pub struct Repository {
     root: PathBuf,
@@ -142,9 +154,6 @@ impl Repository {
         let slug = slug(name)?;
         fs::create_dir_all(&self.specs_dir)?;
         ensure_existing_contained(&self.root, &self.specs_dir, "specs directory")?;
-        let template =
-            self.template(".agents/skills/workflow-kit/assets/SPEC-TEMPLATE.md")?;
-
         let timestamp = Local::now().format("%Y.%m.%d_%H:%M").to_string();
         let mut suffix = 1;
         let workspace = loop {
@@ -163,7 +172,7 @@ impl Repository {
             }
         };
 
-        if let Err(error) = copy_new(&template, &workspace.join("spec.md")) {
+        if let Err(error) = write_new(SPEC_TEMPLATE, &workspace.join("spec.md")) {
             let _ = fs::remove_dir_all(&workspace);
             return Err(error);
         }
@@ -180,52 +189,32 @@ impl Repository {
         phase: ScaffoldPhase,
     ) -> Result<ScaffoldResult, AppError> {
         let workspace = self.resolve_workspace(workspace)?;
-        let (phase_name, prerequisites, templates): (&str, &[&str], &[(&str, &str)]) = match phase {
-            ScaffoldPhase::Plan => (
-                "plan",
-                &["spec.md"],
-                &[
-                    (
-                        ".agents/skills/workflow-kit/assets/PLAN-TEMPLATE.md",
-                        "plan.md",
-                    ),
-                    (
-                        ".agents/skills/workflow-kit/assets/SCOPE-TEMPLATE.md",
-                        "scope.md",
-                    ),
-                ],
-            ),
-            ScaffoldPhase::Tasks => (
-                "tasks",
-                &["spec.md", "plan.md", "scope.md"],
-                &[
-                    (
-                        ".agents/skills/workflow-kit/assets/TASKS-TEMPLATE.json",
-                        "tasks.json",
-                    ),
-                    (
-                        ".agents/skills/workflow-kit/assets/VERIFICATION-TEMPLATE.md",
-                        "verification.md",
-                    ),
-                ],
-            ),
-            ScaffoldPhase::Research => (
-                "research",
-                &["spec.md"],
-                &[(
-                    ".agents/skills/workflow-kit/assets/RESEARCH-TEMPLATE.md",
-                    "research.md",
-                )],
-            ),
-            ScaffoldPhase::DataModel => (
-                "data-model",
-                &["spec.md", "plan.md"],
-                &[(
-                    ".agents/skills/workflow-kit/assets/DATA-MODEL-TEMPLATE.md",
-                    "data-model.md",
-                )],
-            ),
-        };
+        let (phase_name, prerequisites, templates): (&str, &[&str], Vec<(&[u8], &str)>) =
+            match phase {
+                ScaffoldPhase::Plan => (
+                    "plan",
+                    &["spec.md"],
+                    vec![(PLAN_TEMPLATE, "plan.md"), (SCOPE_TEMPLATE, "scope.md")],
+                ),
+                ScaffoldPhase::Tasks => (
+                    "tasks",
+                    &["spec.md", "plan.md", "scope.md"],
+                    vec![
+                        (TASKS_TEMPLATE, "tasks.json"),
+                        (VERIFICATION_TEMPLATE, "verification.md"),
+                    ],
+                ),
+                ScaffoldPhase::Research => (
+                    "research",
+                    &["spec.md"],
+                    vec![(RESEARCH_TEMPLATE, "research.md")],
+                ),
+                ScaffoldPhase::DataModel => (
+                    "data-model",
+                    &["spec.md", "plan.md"],
+                    vec![(DATA_MODEL_TEMPLATE, "data-model.md")],
+                ),
+            };
         let missing: Vec<_> = prerequisites
             .iter()
             .filter(|name| !workspace.join(name).is_file())
@@ -240,15 +229,14 @@ impl Repository {
 
         let mut created = Vec::new();
         let mut existing = Vec::new();
-        for (template_name, target_name) in templates {
+        for (template, target_name) in templates {
             let target = workspace.join(target_name);
             if target.exists() {
-                existing.push((*target_name).to_owned());
+                existing.push(target_name.to_owned());
                 continue;
             }
-            let template = self.template(template_name)?;
-            copy_new(&template, &target)?;
-            created.push((*target_name).to_owned());
+            write_new(template, &target)?;
+            created.push(target_name.to_owned());
         }
         Ok(ScaffoldResult {
             workspace: file_name(&workspace),
@@ -335,17 +323,6 @@ impl Repository {
                 }
             }
         }
-        for template in [
-            ".agents/skills/workflow-kit/assets/SPEC-TEMPLATE.md",
-            ".agents/skills/workflow-kit/assets/PLAN-TEMPLATE.md",
-            ".agents/skills/workflow-kit/assets/SCOPE-TEMPLATE.md",
-            ".agents/skills/workflow-kit/assets/TASKS-TEMPLATE.json",
-            ".agents/skills/workflow-kit/assets/VERIFICATION-TEMPLATE.md",
-        ] {
-            if let Err(error) = self.template(template) {
-                report.problems.push(error.to_string());
-            }
-        }
         if !report.problems.is_empty() {
             report.status = WorkspaceStatus::Broken;
         }
@@ -358,18 +335,6 @@ impl Repository {
         let bytes = fs::read(&path)?;
         let document = TasksFile::from_bytes(&bytes)?;
         Ok((workspace, bytes, document))
-    }
-
-    fn template(&self, relative: &str) -> Result<PathBuf, AppError> {
-        let path = contained_join(&self.root, Path::new(relative), "template path")?;
-        if !path.is_file() {
-            return Err(AppError::Contract(format!(
-                "required template not found: {}",
-                path.display()
-            )));
-        }
-        ensure_existing_contained(&self.root, &path, "template path")?;
-        Ok(path)
     }
 }
 
@@ -446,10 +411,7 @@ pub fn evaluate_workspace(workspace: &Path) -> WorkspaceReport {
     report.blocked_tasks = evaluation.blocked_tasks;
     if let Some(first) = report.ready_tasks.first() {
         report.status = WorkspaceStatus::Ready;
-        report.command = Some(format!(
-            "workflow-kit implement {} {}",
-            report.name, first.id
-        ));
+        report.command = Some(format!("spec-kit implement {} {}", report.name, first.id));
     } else if report.progress.done < report.progress.total {
         report.status = WorkspaceStatus::Blocked;
     } else {
@@ -484,13 +446,12 @@ fn slug(value: &str) -> Result<String, AppError> {
     Ok(output)
 }
 
-fn copy_new(source: &Path, target: &Path) -> Result<(), AppError> {
-    let contents = fs::read(source)?;
+fn write_new(contents: &[u8], target: &Path) -> Result<(), AppError> {
     let mut file = fs::OpenOptions::new()
         .write(true)
         .create_new(true)
         .open(target)?;
-    file.write_all(&contents)?;
+    file.write_all(contents)?;
     file.sync_all()?;
     Ok(())
 }
@@ -562,40 +523,6 @@ mod tests {
 
     fn repository() -> (TempDir, Repository) {
         let directory = TempDir::new().unwrap();
-        for (relative, contents) in [
-            (
-                ".agents/skills/workflow-kit/assets/SPEC-TEMPLATE.md",
-                "# spec template\n",
-            ),
-            (
-                ".agents/skills/workflow-kit/assets/PLAN-TEMPLATE.md",
-                "# plan template\n",
-            ),
-            (
-                ".agents/skills/workflow-kit/assets/SCOPE-TEMPLATE.md",
-                "# scope template\n",
-            ),
-            (
-                ".agents/skills/workflow-kit/assets/RESEARCH-TEMPLATE.md",
-                "# research template\n",
-            ),
-            (
-                ".agents/skills/workflow-kit/assets/DATA-MODEL-TEMPLATE.md",
-                "# data model template\n",
-            ),
-            (
-                ".agents/skills/workflow-kit/assets/TASKS-TEMPLATE.json",
-                "{}\n",
-            ),
-            (
-                ".agents/skills/workflow-kit/assets/VERIFICATION-TEMPLATE.md",
-                "# verification template\n",
-            ),
-        ] {
-            let path = directory.path().join(relative);
-            fs::create_dir_all(path.parent().unwrap()).unwrap();
-            fs::write(path, contents).unwrap();
-        }
         let repository =
             Repository::new(directory.path(), std::path::Path::new("ai/specs")).unwrap();
         (directory, repository)
@@ -614,9 +541,10 @@ mod tests {
         let second = repository.create("Экспорт задач").unwrap();
         assert_ne!(first.path, second.path);
         assert!(first.workspace.contains("экспорт-задач"));
-        assert_eq!(
-            fs::read_to_string(first.path.join("spec.md")).unwrap(),
-            "# spec template\n"
+        assert!(
+            fs::read_to_string(first.path.join("spec.md"))
+                .unwrap()
+                .starts_with("# {Change Name}")
         );
     }
 

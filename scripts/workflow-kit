@@ -4,87 +4,20 @@ set -euo pipefail
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 kit_root="$(cd -- "$script_dir/.." && pwd)"
 
-usage() {
-  cat >&2 <<'EOF'
-usage: scripts/workflow-kit COMMAND [ARGS]
-
-Rust core commands:
-  create NAME [--root DIR] [--specs-dir DIR] [--json]
-  scaffold WORKSPACE --phase {plan|tasks|research|data-model} [--json]
-  list [--all] [--status STATUS] [--json]
-  next-task [WORKSPACE] [--task-id TASK_ID]
-  batch-queue WORKSPACE
-  packet WORKSPACE [--task-id TASK_ID] [--json]
-  claim WORKSPACE --revision TOKEN [--task-id TASK_ID] [--dry-run] [--json]
-  validate WORKSPACE [--json]
-
-Repository helpers:
-  validate-skills [SKILLS_DIR|SKILL.md]
-  test
-EOF
-}
-
-cmd="${1:-}"
-if [[ $# -gt 0 ]]; then
-  shift
+if [[ -n "${WORKFLOW_KIT_BIN:-}" ]]; then
+  exec "$WORKFLOW_KIT_BIN" "$@"
 fi
 
-run_legacy_fallback() {
-  case "$cmd" in
-    create)
-      exec python3 "$kit_root/.agents/skills/workflow-kit/scripts/create_workspace.py" "$@"
-      ;;
-    list)
-      exec python3 "$kit_root/.agents/skills/workflow-kit/scripts/workflow_list_specs.py" "$@"
-      ;;
-    next-task)
-      exec python3 "$kit_root/.agents/skills/workflow-kit/scripts/workflow_list_specs.py" --next-task "$@"
-      ;;
-    batch-queue)
-      exec python3 "$kit_root/.agents/skills/workflow-kit/scripts/workflow_list_specs.py" --batch-queue "$@"
-      ;;
-    *)
-      echo "workflow-kit Rust binary is unavailable; install Rust or set WORKFLOW_KIT_BIN" >&2
-      exit 5
-      ;;
-  esac
-}
-
-run_rust_core() {
-  if [[ -n "${WORKFLOW_KIT_BIN:-}" ]]; then
-    exec "$WORKFLOW_KIT_BIN" "$cmd" "$@"
+for candidate in "$kit_root/target/release/workflow-kit" "$kit_root/target/debug/workflow-kit"; do
+  if [[ -x "$candidate" ]] && [[ -z "$(find "$kit_root/Cargo.toml" "$kit_root/Cargo.lock" "$kit_root/src" "$kit_root/.agents/skills/spec-kit/assets" -newer "$candidate" -print -quit 2>/dev/null)" ]]; then
+    exec "$candidate" "$@"
   fi
+done
 
-  local candidate
-  for candidate in "$kit_root/target/release/workflow-kit" "$kit_root/target/debug/workflow-kit"; do
-    if [[ -x "$candidate" ]] && [[ -z "$(find "$kit_root/Cargo.toml" "$kit_root/Cargo.lock" "$kit_root/src" -newer "$candidate" -print -quit 2>/dev/null)" ]]; then
-      exec "$candidate" "$cmd" "$@"
-    fi
-  done
+export PATH="/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:$PATH"
+if command -v cargo >/dev/null 2>&1; then
+  exec cargo run --quiet --manifest-path "$kit_root/Cargo.toml" --bin workflow-kit -- "$@"
+fi
 
-  export PATH="/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:$PATH"
-  if command -v cargo >/dev/null 2>&1; then
-    exec cargo run --quiet --manifest-path "$kit_root/Cargo.toml" --bin workflow-kit -- "$cmd" "$@"
-  fi
-  run_legacy_fallback "$@"
-}
-
-case "$cmd" in
-  create|scaffold|list|next-task|batch-queue|packet|claim|validate)
-    run_rust_core "$@"
-    ;;
-  validate-skills)
-    exec python3 "$kit_root/.agents/skills/workflow-kit/scripts/validate_skills.py" "$@"
-    ;;
-  test)
-    cd "$kit_root"
-    exec python3 -m unittest discover -s tests -p 'test_*.py'
-    ;;
-  -h|--help|help)
-    usage
-    ;;
-  *)
-    usage
-    exit 2
-    ;;
-esac
+echo "workflow-kit is unavailable; install the binary or Rust, or set WORKFLOW_KIT_BIN" >&2
+exit 5

@@ -1,4 +1,4 @@
-# Контракты артефактов Workflow Kit
+# Контракты артефактов Spec Kit
 
 ## Change workspace
 
@@ -305,7 +305,7 @@ Packet — внешний versioned JSON contract. Обязательные по
 - `3` — нарушение artifact/schema/path contract.
 - `4` — stale revision или claim conflict.
 - `5` — I/O/internal failure.
-- Release binary самодостаточен для core-команд; `scripts/workflow-kit` использует Python только для repository helpers `validate-skills` и `test` либо legacy fallback, если Rust недоступен.
+- Release binary самодостаточен: canonical templates встроены при компиляции. `scripts/workflow-kit` — только dev-launcher Rust binary/cargo; Python fallback отсутствует.
 
 ## `verification.md`
 
