@@ -88,6 +88,15 @@ fn run(cli: &Cli) -> Result<Outcome, AppError> {
                 )))
             }
         }
+        Command::Status {
+            workspace,
+            all,
+            statuses,
+            max_next,
+        } => match workspace {
+            Some(workspace) => validate_command(&repository, cli.json, workspace),
+            None => list_command(&repository, cli.json, *all, statuses, *max_next),
+        },
         Command::List {
             all,
             statuses,
@@ -131,27 +140,33 @@ fn run(cli: &Cli) -> Result<Outcome, AppError> {
             task_ids,
             *dry_run,
         )?),
-        Command::Validate { workspace } => {
-            let report = repository.validate(workspace)?;
-            let code = if report.status == WorkspaceStatus::Broken {
-                3
-            } else {
-                0
-            };
-            if cli.json {
-                Ok(Outcome::with_code(to_json(&report)?, code))
-            } else {
-                let mut output = format!("{} — {}", report.path.display(), report.status);
-                if !report.problems.is_empty() {
-                    output.push_str("\nproblems:\n");
-                    for problem in &report.problems {
-                        output.push_str(&format!("- {problem}\n"));
-                    }
-                    output = output.trim_end().into();
-                }
-                Ok(Outcome::with_code(output, code))
+        Command::Validate { workspace } => validate_command(&repository, cli.json, workspace),
+    }
+}
+
+fn validate_command(
+    repository: &Repository,
+    as_json: bool,
+    workspace: &PathBuf,
+) -> Result<Outcome, AppError> {
+    let report = repository.validate(workspace)?;
+    let code = if report.status == WorkspaceStatus::Broken {
+        3
+    } else {
+        0
+    };
+    if as_json {
+        Ok(Outcome::with_code(to_json(&report)?, code))
+    } else {
+        let mut output = format!("{} — {}", report.path.display(), report.status);
+        if !report.problems.is_empty() {
+            output.push_str("\nproblems:\n");
+            for problem in &report.problems {
+                output.push_str(&format!("- {problem}\n"));
             }
+            output = output.trim_end().into();
         }
+        Ok(Outcome::with_code(output, code))
     }
 }
 

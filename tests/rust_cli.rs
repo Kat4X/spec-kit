@@ -292,6 +292,40 @@ fn validate_preserves_lifecycle_statuses_and_flags_contract_errors() {
 }
 
 #[test]
+fn status_unifies_list_and_validate_without_breaking_legacy_commands() {
+    let fixture = Fixture::new();
+    let workspace = fixture.workspace("2026.07.15_00:05_status", vec![task("T001", "Case-1")]);
+    let workspace_arg = path_string(&workspace);
+
+    let status_list =
+        stdout_json(&fixture.run(&["status", "--all", "--status", "READY", "--json"]));
+    let legacy_list = stdout_json(&fixture.run(&["list", "--all", "--status", "READY", "--json"]));
+    assert_eq!(status_list, legacy_list);
+
+    let status_workspace = stdout_json(&fixture.run(&["status", &workspace_arg, "--json"]));
+    let legacy_validate = stdout_json(&fixture.run(&["validate", &workspace_arg, "--json"]));
+    assert_eq!(status_workspace, legacy_validate);
+
+    let help = fixture.run(&["--help"]);
+    assert!(help.status.success());
+    let help = String::from_utf8(help.stdout).unwrap();
+    assert!(
+        help.lines()
+            .any(|line| line.trim_start().starts_with("status"))
+    );
+    assert!(
+        !help
+            .lines()
+            .any(|line| line.trim_start().starts_with("list"))
+    );
+    assert!(
+        !help
+            .lines()
+            .any(|line| line.trim_start().starts_with("validate"))
+    );
+}
+
+#[test]
 fn legacy_commands_validate_and_path_escape_keep_stable_contracts() {
     let fixture = Fixture::new();
     let first = task("T001", "Case-1");

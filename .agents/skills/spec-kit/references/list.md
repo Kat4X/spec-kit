@@ -17,19 +17,19 @@
 Из корня репозитория:
 
 ```bash
-workflow-kit list
+workflow-kit status
 ```
 
 Полный список, включая завершённые:
 
 ```bash
-workflow-kit list --all
+workflow-kit status --all
 ```
 
 Машинно-читаемый вывод:
 
 ```bash
-workflow-kit list --json
+workflow-kit status --json
 ```
 
 Только первый runnable task без вывода всего `tasks.json`:
@@ -59,7 +59,7 @@ workflow-kit batch-queue ai/specs/2026.06.08_17:45_ui-review-fixes
 Только конкретные статусы:
 
 ```bash
-workflow-kit list --status READY --status BLOCKED
+workflow-kit status --status READY --status BLOCKED
 ```
 
 ## Статусы workspace

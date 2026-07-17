@@ -32,19 +32,19 @@ NO_WORKSPACE → SPECIFY → PLAN → TASKS → IMPLEMENT → VERIFY → COMPLET
 | CLI: `DONE` и Decision равен Ready / Ready with warnings | `COMPLETE` | только отчёт или новый change |
 | CLI: `LEGACY` / `BROKEN` | `BROKEN` | миграция или исправление контракта |
 
-Для существующего workspace сначала запусти:
+Для существующего workspace запусти:
 
 ```bash
-workflow-kit validate <workspace> --root . --json
+workflow-kit status <workspace> --root . --json
 ```
 
-Для списка или выбора workspace:
+Для списка или выбора workspace используй ту же команду без пути:
 
 ```bash
-workflow-kit list --root . --json
+workflow-kit status --root . --json
 ```
 
-`validate/list` дают структурный статус, но переход всё равно обязан проверить фазовый guard ниже.
+`status` даёт структурный статус, но переход всё равно обязан проверить фазовый guard ниже.
 
 ## Guards переходов
 

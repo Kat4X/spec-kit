@@ -38,7 +38,19 @@ pub enum Command {
         phase: ScaffoldPhase,
     },
 
+    /// Show all workspaces or deeply validate one workspace.
+    Status {
+        workspace: Option<PathBuf>,
+        #[arg(long)]
+        all: bool,
+        #[arg(long = "status", value_enum)]
+        statuses: Vec<WorkspaceStatusArg>,
+        #[arg(long, default_value_t = 5)]
+        max_next: usize,
+    },
+
     /// List and evaluate Spec Kit workspaces.
+    #[command(hide = true)]
     List {
         #[arg(long)]
         all: bool,
@@ -77,6 +89,7 @@ pub enum Command {
     },
 
     /// Validate workflow artifacts and task contracts.
+    #[command(hide = true)]
     Validate { workspace: PathBuf },
 }
 

@@ -85,18 +85,18 @@ src/                      # единственная реализация CLI
     assets/               # canonical templates, embedded в Rust binary
 ```
 
-## Быстрый список workspaces
+## Быстрый статус workspaces
 
 Из проекта, где лежат `ai/specs/*`, можно запустить:
 
 ```bash
-scripts/workflow-kit list --root .
+scripts/workflow-kit status --root .
 ```
 
 Для машинного вывода:
 
 ```bash
-scripts/workflow-kit list --root . --json
+scripts/workflow-kit status --root . --json
 scripts/workflow-kit batch-queue <workspace> --root .
 ```
 
@@ -126,7 +126,7 @@ scripts/workflow-kit packet "$WORKSPACE" --root . --json
 scripts/workflow-kit claim "$WORKSPACE" --revision 'fnv1a64:…' --dry-run --root . --json
 scripts/workflow-kit claim "$WORKSPACE" --revision 'fnv1a64:…' --root . --json
 
-scripts/workflow-kit validate "$WORKSPACE" --root . --json
+scripts/workflow-kit status "$WORKSPACE" --root . --json
 ```
 
 `packet --task-id Txxx` выдаёт одну явно выбранную dependency-ready задачу. Без `--task-id` CLI возвращает одну непараллельную задачу либо непрерывный ready-набор `parallel: true` до первого последовательного/barrier состояния. Пакет содержит requirement/plan excerpts, scope, files, checks и `missingRefs`, но не весь `tasks.json` и не содержимое product source files.

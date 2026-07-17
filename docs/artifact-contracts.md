@@ -217,7 +217,7 @@ Batch/YOLO не отменяет stop conditions: `Forbidden`, неподтве�
 - Финальная задача должна запускать проверки, обновлять `verification.md` и проверять `scope.md`.
 - В batch/YOLO режиме статусы и verification evidence можно обновлять на checkpoint-ах, но `done` разрешён только для задач, чьи required checks прошли или покрыты broader check с явным evidence.
 
-## `workflow-kit list` scanner
+## `workflow-kit status` scanner
 
 Назначение: read-only список workspaces и runnable tasks по файлам `ai/specs/*`.
 
