@@ -249,6 +249,49 @@ fn claim_supports_dry_run_atomic_update_and_stale_conflict_exit() {
 }
 
 #[test]
+fn validate_preserves_lifecycle_statuses_and_flags_contract_errors() {
+    let fixture = Fixture::new();
+
+    let needs_plan = fixture.root.join("ai/specs/2026.07.15_00:03_needs-plan");
+    fs::create_dir_all(&needs_plan).unwrap();
+    fs::write(needs_plan.join("spec.md"), "# Spec\n").unwrap();
+    let report = stdout_json(&fixture.run(&["validate", &path_string(&needs_plan), "--json"]));
+    assert_eq!(report["status"], "NEEDS_PLAN");
+
+    let needs_tasks = fixture.root.join("ai/specs/2026.07.15_00:04_needs-tasks");
+    fs::create_dir_all(&needs_tasks).unwrap();
+    for file in ["spec.md", "plan.md", "scope.md"] {
+        fs::write(needs_tasks.join(file), format!("# {file}\n")).unwrap();
+    }
+    let report = stdout_json(&fixture.run(&["validate", &path_string(&needs_tasks), "--json"]));
+    assert_eq!(report["status"], "NEEDS_TASKS");
+
+    let list = stdout_json(&fixture.run(&["list", "--json"]));
+    for (name, status) in [
+        ("2026.07.15_00:03_needs-plan", "NEEDS_PLAN"),
+        ("2026.07.15_00:04_needs-tasks", "NEEDS_TASKS"),
+    ] {
+        assert!(
+            list["items"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|item| { item["name"] == name && item["status"] == status })
+        );
+    }
+
+    let broken = fixture.workspace(
+        "2026.07.15_00:05_broken-reference",
+        vec![task("T001", "Case-1")],
+    );
+    fs::remove_file(broken.join("verification.md")).unwrap();
+    let output = fixture.run(&["validate", &path_string(&broken), "--json"]);
+    assert_eq!(output.status.code(), Some(3));
+    let report: Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(report["status"], "BROKEN");
+}
+
+#[test]
 fn legacy_commands_validate_and_path_escape_keep_stable_contracts() {
     let fixture = Fixture::new();
     let first = task("T001", "Case-1");

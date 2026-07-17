@@ -301,6 +301,7 @@ impl Repository {
         if report.status == WorkspaceStatus::Broken {
             return Ok(report);
         }
+        let lifecycle_problem_count = report.problems.len();
         if workspace.join("tasks.json").is_file() {
             let document = load_tasks(&workspace)?;
             let links = [
@@ -323,7 +324,7 @@ impl Repository {
                 }
             }
         }
-        if !report.problems.is_empty() {
+        if report.problems.len() > lifecycle_problem_count {
             report.status = WorkspaceStatus::Broken;
         }
         Ok(report)
