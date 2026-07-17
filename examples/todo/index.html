@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Список задач</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main aria-labelledby="title">
+    <h1 id="title">Список задач</h1>
+    <form id="todo-form">
+      <label for="todo-text">Новая задача</label>
+      <div class="add-row">
+        <input id="todo-text" name="todo" autocomplete="off" required autofocus>
+        <button type="submit">Добавить</button>
+      </div>
+    </form>
+
+    <p id="empty-state">Задач пока нет</p>
+    <ul id="todo-list" aria-label="Задачи"></ul>
+  </main>
+  <script type="module" src="app.mjs"></script>
+</body>
+</html>
