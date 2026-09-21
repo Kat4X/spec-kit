@@ -1,63 +1,14 @@
-# Batch / YOLO mode
+# Несколько задач подряд
 
-Use only when the user explicitly asks for `yolo mode`, `batch`, `продолжай в yolo`, `делай все готовые задачи`, or equivalent.
+Этот режим включается только по явному запросу batch/YOLO, «выполни все задачи» или полного цикла. Он не снимает границы и требования проверок из `references/implement.md`.
 
-## Queue
+1. Работай с одним workspace и одним исполнителем. Не запускай несколько сессий, которые одновременно меняют `tasks.md`.
+2. Выбирай следующую задачу в порядке документа. Перед каждой задачей заново проверь её статус, зависимости и подтверждения.
+3. Записывай `in_progress` до работы и фактический результат после проверки каждой задачи. Не держи статусы только в памяти до конца batch.
+4. Ставь `done` только после успешной обязательной проверки. До этого зависимая задача не готова, даже если код уже написан.
+5. Остановись на первом блокере. Не перескакивай к независимым задачам ниже и не ослабляй проверки ради продолжения.
+6. Если все задачи завершены, выполни verify по `references/verify.md`. Если пользователь ограничил batch конкретными задачами, остановись на границе запроса и сообщи, что ещё осталось.
 
-Build the deterministic queue from `execution.order`. The command simulates completion of earlier queued tasks, so downstream tasks may enter the same batch without intermediate artifact writes:
+Одна более широкая проверка может покрывать несколько задач, только если она действительно проверяет их результаты. Не откладывай необходимую проверку зависимости до конца batch.
 
-```bash
-workflow-kit batch-queue <workspace> --root .
-```
-
-Then load each task payload before editing:
-
-```bash
-workflow-kit next-task <workspace> --task-id Txxx --root .
-```
-
-A dependency is complete only when the dependency task is `status: "done"` or has justified `status: "skipped"`. Inside a batch, a dependency may count as complete after the earlier queued task is implemented and verified. Tasks awaiting/rejecting confirmation remain in `blockers`; approved confirmations may enter `queue`.
-
-Do not jump past a blocker if that can distort the dependency chain or hide risk. Independent later tasks are allowed only when their `dependsOn` are clean and scope is obvious.
-
-## Artifact policy
-
-You may batch workflow artifact updates:
-
-- keep a short verification ledger while working;
-- update `tasks.json` and `verification.md` at checkpoints, not after every microstep;
-- checkpoint artifacts after a related group, before a risky transition, and at the end;
-- after a batched update, validate `tasks.json` once (`jq empty` or equivalent);
-- avoid duplicate checks when a later/wider command strictly covers earlier required checks; say what it covers in evidence;
-- never mark `done` until required checks passed or are explicitly covered by a covering-check.
-
-Implementation fixes in MVP belong in `tasks.json` plus `verification.md` evidence, not in a separate file.
-
-After all required checks for the selected batch pass, create one commit containing only that batch's implementation files. Keep `tasks.json`, `verification.md`, and all other `ai/specs/**` artifacts local. Do not create partial commits for a failed or blocked batch, and do not push.
-
-## Stop output
-
-When stopping mid-batch, report:
-
-- tasks completed;
-- checks that cover their `done` status;
-- the next pending task blocked;
-- the blocker and next action.
-
-## Result format
-
-```text
-Batch завершён: T002–T006 (`status: done`)
-
-Проверки:
-  ./gradlew :app:assembleDebug --quiet — passed (covers T003–T006)
-  ./gradlew :app:testDevDebugUnitTest :app:testProdDebugUnitTest --quiet — passed (covers T002)
-
-Workflow artifacts:
-  tasks.json updated once after batch
-  verification.md updated once after batch
-
-Прогресс: 6/8 done
-Commit: <hash>
-Следующая: [T007] ...
-```
+В ответе перечисли выполненные задачи, проверки и следующий шаг. При остановке укажи блокирующую задачу и необходимое решение. Не создавай отдельный журнал, автоматический commit или push.

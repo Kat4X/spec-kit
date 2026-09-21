@@ -3,20 +3,20 @@ set -euo pipefail
 
 root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root"
-export PATH="/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:$PATH"
 
 required=(
   .agents/skills/spec-kit/SKILL.md
   .agents/skills/spec-kit/assets/SPEC-TEMPLATE.md
   .agents/skills/spec-kit/assets/PLAN-TEMPLATE.md
-  .agents/skills/spec-kit/assets/SCOPE-TEMPLATE.md
-  .agents/skills/spec-kit/assets/TASKS-TEMPLATE.json
-  .agents/skills/spec-kit/assets/VERIFICATION-TEMPLATE.md
+  .agents/skills/spec-kit/assets/TASKS-TEMPLATE.md
   .agents/skills/spec-kit/references/specify.md
   .agents/skills/spec-kit/references/plan.md
   .agents/skills/spec-kit/references/tasks.md
   .agents/skills/spec-kit/references/implement.md
   .agents/skills/spec-kit/references/verify.md
+  .agents/skills/spec-kit/references/list.md
+  .agents/skills/spec-kit/references/batch-mode.md
+  .agents/skills/spec-kit/agents/openai.yaml
   tools/validate_skill.py
   tests/evals/spec-kit.json
 )
@@ -24,23 +24,8 @@ for path in "${required[@]}"; do
   [[ -f "$path" ]] || { echo "missing required file: $path" >&2; exit 1; }
 done
 
-stale=(
-  .agents/skills/workflow-kit
-  .agents/skills/spec-kit/scripts/create_workspace.py
-  .agents/skills/spec-kit/scripts/workflow_list_specs.py
-  apps/calculator
-  tests/test_calculator.mjs
-  tests/test_workflow_kit.py
-)
-for path in "${stale[@]}"; do
-  [[ ! -e "$path" ]] || { echo "stale path exists: $path" >&2; exit 1; }
-done
-
 python3 tools/validate_skill.py .agents/skills/spec-kit
 python3 -m unittest discover -s tests -p 'test_*.py'
-python3 -m json.tool .agents/skills/spec-kit/assets/TASKS-TEMPLATE.json >/dev/null
 python3 -m json.tool tests/evals/spec-kit.json >/dev/null
-cargo fmt --check
-cargo test
 
 echo "OK: Spec Kit repository checks passed."

@@ -1,4 +1,4 @@
-ai/specs/
+.ai
 /target/
 .DS_Store
 __pycache__/

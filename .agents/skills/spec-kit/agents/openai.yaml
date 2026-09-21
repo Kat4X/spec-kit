@@ -1,4 +1,4 @@
 interface:
   display_name: "Spec Kit"
-  short_description: "State machine для проверяемого цикла изменений"
-  default_prompt: "Используй $spec-kit: определи состояние workspace и выполни следующий допустимый переход."
+  short_description: "Требования, план и проверяемые задачи в Markdown"
+  default_prompt: "Используй $spec-kit: прочитай файлы изменения и предложи следующий шаг. Без явного запроса ничего не создавай и не реализуй."

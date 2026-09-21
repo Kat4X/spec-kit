@@ -1,146 +1,63 @@
 # Spec Kit
 
-> Skills-first workflow для AI-агентов: фиксируем намерение, план, границы редактирования, машинно-читаемые задачи и проверку в файлах, а компактный Rust CLI выдаёт агенту только следующую работу и связанный контекст.
+Один skill для работы по спецификации. Агент записывает требования, план и задачи в Markdown, выполняет одну задачу и сохраняет результаты проверок. Отдельной программы, CLI или сборки нет.
 
-## Статус
+## Установка
 
-Черновик для валидации. Единый state-machine skill установлен в `.agents/skills/spec-kit/`, Rust CLI покрывает lifecycle workspace, task selection, context packet и безопасный claim.
+Скопируйте папку `.agents/skills/spec-kit/` целиком в `.agents/skills/` своего проекта. Сохраните `SKILL.md`, `references/`, `assets/` и `agents/` вместе. Если ваш агент использует другой каталог skills, поместите туда ту же папку `spec-kit`.
 
-## Зачем
+Нужен агент с поддержкой skills и доступом к файлам проекта. Зависимости самого проекта нужны для реализации и проверок, но Spec Kit не требует Rust, Python или отдельного runtime.
 
-Обычная работа с AI часто разваливается из-за потери контекста: идея осталась в чате, агент сделал кусок, потом непонятно, что уже решено и почему.
+## Использование в чате
 
-Spec Kit переносит состояние работы в файлы:
+Напишите `/spec-kit`, чтобы увидеть существующие workspaces, их состояние и возможное следующее действие. Такой вызов ничего не создаёт и не меняет.
 
-```text
-idea → spec.md → research.md → plan.md → scope.md → tasks.json → code → verification.md
-                         └→ data-model.md (optional)
-```
-
-Skill объясняет процесс, файлы хранят состояние, человек контролирует результат.
-
-## Принципы
-
-- **State-machine skill, CLI-assisted** — один skill маршрутизирует фазы по состоянию артефактов, CLI детерминированно выполняет шаблонные операции и выбор очереди.
-- **Scope-first** — явный текущий scope, P0/P1/P2 где это полезно, жёсткий out-of-scope, никаких «заодно перепишем половину проекта».
-- **Small verified steps** — задачи маленькие, проверяемые, с явными файлами.
-- **Machine-readable task queue** — `tasks.json` хранит статусы, зависимости, checks, scope files и verification evidence без парсинга Markdown-чекбоксов.
-- **Managed edit scope** — агент заранее знает, что можно менять свободно, что требует подтверждения, а что запрещено.
-- **Spec bug ≠ implementation bug** — если намерение неверное, меняем spec; если spec верна, чиним реализацию отдельной задачей/заметкой.
-- **Tests as feedback loop** — завершение доказывается проверками, а не фразой «готово».
-- **Batch only by consent** — по умолчанию агент делает одну задачу; batch/YOLO разрешён только явным запросом и останавливается на блокерах.
-
-## Структура change workspace
+Действия тоже задаются в чате, а не в терминале:
 
 ```text
-ai/specs/YYYY.MM.DD_HH:MM_change-name/
-├── spec.md             # что и зачем
-├── research.md         # опционально: что выяснили перед планом
-├── plan.md             # как делаем
-├── data-model.md       # опционально: данные/схемы/форматы
-├── scope.md            # managed files / границы редактирования
-├── tasks.json          # машинно-читаемая очередь задач
-└── verification.md     # чем доказали, что работает
+/spec-kit specify Добавить экспорт задач в CSV
+/spec-kit plan <workspace>
+/spec-kit tasks <workspace>
+/spec-kit implement <workspace>
+/spec-kit verify <workspace>
+/spec-kit list
 ```
 
-## Основной цикл
+Вместо `<workspace>` подставьте путь, который агент вернул после specify.
+
+Можно писать обычными словами: "Создай spec для экспорта задач", "Составь план по этой spec", "Реализуй следующую задачу Spec Kit". Указывайте точный путь workspace или имя, которое совпадает только с одной папкой. При неоднозначном выборе агент спросит, какую папку использовать.
+
+Для новой spec в `specify` встроено интервью по правилам grilling. Агент задаёт по одному существенному вопросу, предлагает ответ и объясняет рекомендацию. Факты из проекта выясняет самостоятельно. Когда вопросы закрыты, он показывает итог и ждёт явного подтверждения. До подтверждения папка изменения, spec и другие файлы не создаются. Даже полный исходный запрос требует подтверждения итога; полный цикл этот этап не пропускает.
+
+При уточнении существующей spec обязательного интервью нет. Отдельный скилл grilling устанавливать не нужно. Ответы до создания spec остаются в разговоре, без отдельного файла интервью; потеря контекста не считается подтверждением.
+
+Обычный `implement` выполняет одну задачу. Для последовательной работы до первого блокера попросите явно: "Выполни задачи export-tasks в batch". Для всего цикла: "Проведи экспорт задач через specify, plan, tasks, implement и verify". Ни batch, ни полный цикл не разрешают обходить подтверждения, границы изменений или обязательные проверки. Одновременно писать в один workspace нельзя.
+
+## Где хранится работа
 
 ```text
-specify → plan → tasks → implement → verify
-   │        │       │          │         │
-   ▼        ▼       ▼          ▼         ▼
-spec.md  plan.md  tasks.json  code      verification.md
-            │        │          │
-            ▼        ▼          ▼
-        scope.md  file paths  task statuses
+ai/specs/YYYY.MM.DD_HH-MM_change-name/
+├── spec.md    # зачем и какой результат нужен
+├── plan.md    # решение, файлы, границы и проверки
+└── tasks.md   # задачи, результаты и итоговая проверка
 ```
 
-## Что взято из исследованных подходов
+Файлы появляются по мере прохождения `specify → plan → tasks → implement → verify`. При совпадении имени новая папка получает суффикс `-2`, затем `-3` и так далее. Исследования и модель данных остаются внутри `plan.md`, отдельные файлы для них не нужны.
 
-| Источник | Что берём | Что не тащим |
-|---|---|---|
-| OpenSpec | change как папка, artifact flow, delta-мышление, archive/sync как будущая идея | тяжёлый CLI/schema engine на старте |
-| CodeSpeak | managed files, mixed-mode границы, spec bug vs implementation bug, test feedback loop | specs как полный replacement кода |
-| WORKFLOW-SKILL | простой цикл specify/plan/tasks/implement, P0/P1/P2, stop conditions | жёсткую привязку к Yutori |
+Агент меняет только разрешённые в плане файлы. Для любого неуказанного пути нужно подтверждение. Задача получает `done` только после выполненных обязательных проверок. Если такую проверку нельзя провести, задача остаётся `blocked`.
 
-## Содержимое
+Артефакты в `ai/specs/` локальные: агент не добавляет их в staging. Commit и push возможны только по явному запросу, не после каждой задачи автоматически.
 
-```text
-docs/
-  artifact-contracts.md    # контракт файлов
+Подробности формата и переходов описаны в [контрактах артефактов](docs/artifact-contracts.md).
 
-scripts/
-  workflow-kit            # dev-launcher Rust CLI
-  check                   # все проверки репозитория
+## Разработка skill
 
-tools/
-  validate_skill.py       # dev-only проверка Agent Skills metadata/ссылок
+Инструкции находятся в `.agents/skills/spec-kit/SKILL.md` и `references/`, три шаблона в `assets/`. Для работы установленного skill файлы остального репозитория не нужны.
 
-src/                      # единственная реализация CLI
-
-.agents/skills/
-  spec-kit/
-    SKILL.md              # state machine и единая точка входа
-    references/           # инструкции фаз, загружаемые по текущему состоянию
-    assets/               # canonical templates, embedded в Rust binary
-```
-
-## Быстрый статус workspaces
-
-Из проекта, где лежат `ai/specs/*`, можно запустить:
-
-```bash
-scripts/workflow-kit status --root .
-```
-
-Для машинного вывода:
-
-```bash
-scripts/workflow-kit status --root . --json
-scripts/workflow-kit batch-queue <workspace> --root .
-```
-
-## Rust CLI для агента
-
-Первый build требует stable Rust; после этого launcher использует актуальный локальный binary. Python fallback для core-команд отсутствует:
-
-```bash
-export PATH="/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:$PATH"
-rustup default stable
-cargo build --release
-```
-
-Минимальный agent flow:
-
-```bash
-WORKSPACE="$(scripts/workflow-kit create 'export tasks' --root .)"
-
-# Агент редактирует spec.md, затем запрашивает шаблоны следующей фазы.
-scripts/workflow-kit scaffold "$WORKSPACE" --phase plan --root . --json
-scripts/workflow-kit scaffold "$WORKSPACE" --phase tasks --root . --json
-
-# JSON packet: одна sequential task или ready parallel prefix + связанный context.
-scripts/workflow-kit packet "$WORKSPACE" --root . --json
-
-# revision берётся из packet; dry-run ничего не записывает.
-scripts/workflow-kit claim "$WORKSPACE" --revision 'fnv1a64:…' --dry-run --root . --json
-scripts/workflow-kit claim "$WORKSPACE" --revision 'fnv1a64:…' --root . --json
-
-scripts/workflow-kit status "$WORKSPACE" --root . --json
-```
-
-`packet --task-id Txxx` выдаёт одну явно выбранную dependency-ready задачу. Без `--task-id` CLI возвращает одну непараллельную задачу либо непрерывный ready-набор `parallel: true` до первого последовательного/barrier состояния. Пакет содержит requirement/plan excerpts, scope, files, checks и `missingRefs`, но не весь `tasks.json` и не содержимое product source files.
-
-`claim` под блокировкой повторно проверяет revision и готовность unit, затем атомарно переводит выбранные задачи в `in_progress`. Stale packet завершается conflict без частичной записи; `--dry-run` возвращает предполагаемый результат без изменения workspace.
-
-Проверить весь репозиторий:
+Для проверки изменений в этом репозитории нужен Python 3:
 
 ```bash
 scripts/check
 ```
 
-Установленный skill вызывает `workflow-kit` из `PATH`; путь `scripts/workflow-kit` существует только для разработки этого репозитория.
-
-## Следующий шаг
-
-Проверить обновлённый workflow на реальных изменениях разного размера и собрать примеры экономии agent context относительно чтения полных артефактов.
+Команда проверяет наличие файлов, metadata и ссылки skill, запускает Python unittests и проверяет корректность JSON с примерами маршрутизации. Она не оценивает ответы модели на эти примеры. Rust и сторонние Python-пакеты не нужны.

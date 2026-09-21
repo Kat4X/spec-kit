@@ -1,36 +1,86 @@
 [
   {
+    "query": "/spec-kit",
+    "should_trigger": true,
+    "skill": "spec-kit"
+  },
+  {
+    "query": "/spec-kit list",
+    "should_trigger": true,
+    "skill": "spec-kit"
+  },
+  {
+    "query": "/spec-kit specify Добавить экспорт задач в CSV",
+    "should_trigger": true,
+    "skill": "spec-kit"
+  },
+  {
     "query": "Создай spec для экспорта задач в CSV",
     "should_trigger": true,
     "skill": "spec-kit"
   },
   {
-    "query": "Нужно спланировать реализацию по ai/specs/2026.07.09_10:00_export-tasks/spec.md",
+    "query": "Нужно спланировать реализацию по ai/specs/2026.07.09_10-00_export-tasks/spec.md",
     "should_trigger": true,
     "skill": "spec-kit"
   },
   {
-    "query": "Разбей готовый plan.md на tasks.json",
+    "query": "Уточни границы изменений в плане Spec Kit для export-tasks",
     "should_trigger": true,
     "skill": "spec-kit"
   },
   {
-    "query": "Реализуй следующую задачу spec-kit для export-tasks",
+    "query": "Разбей готовый plan.md на задачи в tasks.md для текущего workspace Spec Kit",
     "should_trigger": true,
     "skill": "spec-kit"
   },
   {
-    "query": "Проверь change перед закрытием, все ли задачи и verification сходятся",
+    "query": "/spec-kit tasks export-tasks",
     "should_trigger": true,
     "skill": "spec-kit"
   },
   {
-    "query": "Что у нас сейчас готово к реализации в ai/specs?",
+    "query": "Реализуй следующую задачу Spec Kit для export-tasks",
     "should_trigger": true,
     "skill": "spec-kit"
   },
   {
-    "query": "Проведи новый change целиком через specify, plan, tasks, implement и verify",
+    "query": "Продолжай работу над ai/specs/2026.07.09_10-00_export-tasks",
+    "should_trigger": true,
+    "skill": "spec-kit"
+  },
+  {
+    "query": "Выполни задачи export-tasks в batch последовательно до первого блокера",
+    "should_trigger": true,
+    "skill": "spec-kit"
+  },
+  {
+    "query": "Проверь изменение Spec Kit перед закрытием и запиши итоговую проверку в tasks.md",
+    "should_trigger": true,
+    "skill": "spec-kit"
+  },
+  {
+    "query": "/spec-kit verify export-tasks",
+    "should_trigger": true,
+    "skill": "spec-kit"
+  },
+  {
+    "query": "Что у нас сейчас готово к реализации в ai/specs? Ничего не меняй",
+    "should_trigger": true,
+    "skill": "spec-kit"
+  },
+  {
+    "query": "Проведи экспорт задач целиком через specify, plan, tasks, implement и verify",
+    "should_trigger": true,
+    "skill": "spec-kit"
+  },
+  {
+    "query": "Продолжи интервью Spec Kit для новой spec, файлы пока не создавай",
+    "should_trigger": true,
+    "skill": "spec-kit"
+  },
+  {
+    "query": "Уточни R1 в существующей spec экспорта CSV без повторного интервью",
     "should_trigger": true,
     "skill": "spec-kit"
   },
@@ -51,6 +101,16 @@
   },
   {
     "query": "Добавь тест для date formatter прямо сейчас, без spec процесса",
+    "should_trigger": false,
+    "skill": null
+  },
+  {
+    "query": "Покажи список файлов в текущем каталоге",
+    "should_trigger": false,
+    "skill": null
+  },
+  {
+    "query": "Помоги составить план отпуска на неделю",
     "should_trigger": false,
     "skill": null
   }
