@@ -16,7 +16,6 @@ required=(
   .agents/skills/spec-kit/references/verify.md
   .agents/skills/spec-kit/references/list.md
   .agents/skills/spec-kit/references/batch-mode.md
-  .agents/skills/spec-kit/agents/openai.yaml
   tools/validate_skill.py
   tests/evals/spec-kit.json
 )

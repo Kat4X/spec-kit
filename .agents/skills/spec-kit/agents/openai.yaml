@@ -1,4 +1,0 @@
-interface:
-  display_name: "Spec Kit"
-  short_description: "Требования, план и проверяемые задачи в Markdown"
-  default_prompt: "Используй $spec-kit: прочитай файлы изменения и предложи следующий шаг. Без явного запроса ничего не создавай и не реализуй."
